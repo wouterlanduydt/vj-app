@@ -1,5 +1,6 @@
 import Cube from './objects/Cube';
 import mapRange from './lib/mapRange';
+import removeAllObjects from './lib/removeAllObjects';
 
 const THREE = require(`three`);
 
@@ -28,7 +29,6 @@ const cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 const init = () => {
   configureMidiControlls();
   createScene();
-  createCube();
 
   loop();
 };
@@ -60,17 +60,25 @@ const configureMidiControlls = () => {
     }
 
     // DIFFERENT VISUALS
-    if (message.data[1] === 37 && message.data[2] === 127) {
+    if (message.data[1] === 37 && message.data[2] === 127 && selectedVisual !== 1) {
       selectedVisual = 1;
+      removeAllObjects(scene);
+      visualOneRender();
     }
-    if (message.data[1] === 38 && message.data[2] === 127) {
+    if (message.data[1] === 38 && message.data[2] === 127 && selectedVisual !== 2) {
       selectedVisual = 2;
+      removeAllObjects(scene);
+      visualTwoRender();
     }
-    if (message.data[1] === 39 && message.data[2] === 127) {
+    if (message.data[1] === 39 && message.data[2] === 127 && selectedVisual !== 3) {
       selectedVisual = 3;
+      removeAllObjects(scene);
+      visualThreeRender();
     }
-    if (message.data[1] === 40 && message.data[2] === 127) {
+    if (message.data[1] === 40 && message.data[2] === 127 && selectedVisual !== 4) {
       selectedVisual = 4;
+      removeAllObjects(scene);
+      visualFourRender();
     }
 
     switch (selectedVisual) {
@@ -158,6 +166,22 @@ const createScene = () => {
   window.addEventListener(`resize`, handleWindowResize, false);
 };
 
+const visualOneRender = () => {
+  createCube();
+};
+
+const visualTwoRender = () => {
+  console.log(`[RENDER VISUAL 2]`);
+};
+
+const visualThreeRender = () => {
+  console.log(`[RENDER VISUAL 3]`);
+};
+
+const visualFourRender = () => {
+  console.log(`[RENDER VISUAL 4]`);
+};
+
 const createCube = () => {
   cube = new Cube();
   scene.add(cube.mesh);
@@ -176,7 +200,11 @@ const updateCube = () => {
 const loop = () => {
   camera.position.z = cameraPos.z;
   renderer.render(scene, camera);
-  updateCube();
+
+  if (selectedVisual === 1) {
+    updateCube();
+  }
+
   requestAnimationFrame(loop);
 };
 
