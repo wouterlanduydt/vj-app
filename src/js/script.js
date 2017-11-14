@@ -18,10 +18,10 @@ const cameraPos = {z: 0};
 const cameraMaxPos = {z: 1000};
 
 const cubeProps = {width: 10, height: 10, depth: 10};
-const cubeRotation = {x: 0, y: 0};
+const cubeRotation = {x: 0, y: 0, z: 0};
 
 const cubeMaxProps = {width: 800, height: 800, depth: 800};
-const cubeMaxRotation = {x: 0.3, y: 0.3};
+const cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
 const init = () => {
   configureMidiControlls();
@@ -75,6 +75,9 @@ const configureMidiControlls = () => {
     if (message.data[0] === 188 && message.data[1] === 3) {
       cubeRotation.y = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.y);
     }
+    if (message.data[0] === 188 && message.data[1] === 4) {
+      cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
+    }
   };
 };
 
@@ -112,6 +115,7 @@ const createCube = () => {
 const updateCube = () => {
   cube.mesh.rotation.x += cubeRotation.x;
   cube.mesh.rotation.y += cubeRotation.y;
+  cube.mesh.rotation.z += cubeRotation.z;
 
   cube.mesh.scale.x = cubeProps.width;
   cube.mesh.scale.y = cubeProps.height;

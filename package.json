@@ -41,5 +41,6 @@
     "webpack-config-htmls": "^1.0.1",
     "webpack-config-utils": "^2.3.0",
     "webpack-dev-server": "^2.4.1"
-  }
+  },
+  "dependencies": {}
 }
