@@ -14,6 +14,8 @@ let scene,
 
 let cube;
 
+let selectedVisual;
+
 const cameraPos = {z: 0};
 const cameraMaxPos = {z: 1000};
 
@@ -53,32 +55,81 @@ const configureMidiControlls = () => {
     console.log(message.data);
 
     // CAMERA Z CONTROLS
-    if (message.data[0] === 188 && message.data[1] === 9) {
+    if (message.data[1] === 9) {
       cameraPos.z = mapRange(message.data[2], 0, 127, 0, cameraMaxPos.z);
     }
 
-    // CUBE PROPS
-    if (message.data[0] === 188 && message.data[1] === 6) {
-      cubeProps.width = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.width);
+    // DIFFERENT VISUALS
+    if (message.data[1] === 37 && message.data[2] === 127) {
+      selectedVisual = 1;
     }
-    if (message.data[0] === 188 && message.data[1] === 7) {
-      cubeProps.height = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.height);
+    if (message.data[1] === 38 && message.data[2] === 127) {
+      selectedVisual = 2;
     }
-    if (message.data[0] === 188 && message.data[1] === 8) {
-      cubeProps.depth = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.depth);
+    if (message.data[1] === 39 && message.data[2] === 127) {
+      selectedVisual = 3;
+    }
+    if (message.data[1] === 40 && message.data[2] === 127) {
+      selectedVisual = 4;
     }
 
-    // CUBE ROTATION
-    if (message.data[0] === 188 && message.data[1] === 2) {
-      cubeRotation.x = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.x);
+    switch (selectedVisual) {
+    case 1:
+      visualOneControls(message);
+      break;
+    case 2:
+      visualTwoControls(message);
+      break;
+    case 3:
+      visualThreeControls(message);
+      break;
+    case 4:
+      visualFourControls(message);
+      break;
+    default:
+      visualOneControls(message);
     }
-    if (message.data[0] === 188 && message.data[1] === 3) {
-      cubeRotation.y = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.y);
-    }
-    if (message.data[0] === 188 && message.data[1] === 4) {
-      cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
-    }
+
   };
+};
+
+// MIDI LOGIC FOR DIFFERENT SCENES
+const visualOneControls = message => {
+  console.log(`[VISUAL 1]`, message.data);
+
+  // CUBE PROPS
+  if (message.data[1] === 6) {
+    cubeProps.width = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.width);
+  }
+  if (message.data[1] === 7) {
+    cubeProps.height = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.height);
+  }
+  if (message.data[1] === 8) {
+    cubeProps.depth = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.depth);
+  }
+
+  // CUBE ROTATION
+  if (message.data[1] === 2) {
+    cubeRotation.x = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.x);
+  }
+  if (message.data[1] === 3) {
+    cubeRotation.y = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.y);
+  }
+  if (message.data[1] === 4) {
+    cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
+  }
+};
+
+const visualTwoControls = message => {
+  console.log(`[VISUAL 2]`, message.data);
+};
+
+const visualThreeControls = message => {
+  console.log(`[VISUAL 3]`, message.data);
+};
+
+const visualFourControls = message => {
+  console.log(`[VISUAL 4]`, message.data);
 };
 
 const createScene = () => {
