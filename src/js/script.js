@@ -29,7 +29,6 @@ const cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 const init = () => {
   configureMidiControlls();
   createScene();
-
   loop();
 };
 
@@ -37,9 +36,11 @@ const configureMidiControlls = () => {
   if (navigator.requestMIDIAccess) {
     navigator.requestMIDIAccess()
       .then(success, failure);
+    console.log(`Midi connecting`);
   }
 
   function success (midi) {
+    console.log(`Midi connection succesfull`);
     const inputs = midi.inputs.values();
 
     for (let input = inputs.next();input && !input.done;input = inputs.next()) {
@@ -48,7 +49,7 @@ const configureMidiControlls = () => {
   }
 
   function failure () {
-    console.error(`No access to midi devices.`);
+    console.error(`Midi connection failed.`);
   }
 
   const onMIDIMessage = message => {
@@ -59,86 +60,149 @@ const configureMidiControlls = () => {
       cameraPos.z = mapRange(message.data[2], 0, 127, 0, cameraMaxPos.z);
     }
 
-    // DIFFERENT VISUALS
-    if (message.data[1] === 37 && message.data[2] === 127 && selectedVisual !== 1) {
-      selectedVisual = 1;
+    const renderFunctions = {
+      1: visualOneRender,
+      2: visualTwoRender,
+      3: visualThreeRender,
+      4: visualFourRender
+    };
+
+    const visualFromMessage = getVisualFromMessage(message);
+    if (visualFromMessage && selectedVisual !== visualFromMessage) {
+      selectedVisual = visualFromMessage;
       removeAllObjects(scene);
-      visualOneRender();
-    }
-    if (message.data[1] === 38 && message.data[2] === 127 && selectedVisual !== 2) {
-      selectedVisual = 2;
-      removeAllObjects(scene);
-      visualTwoRender();
-    }
-    if (message.data[1] === 39 && message.data[2] === 127 && selectedVisual !== 3) {
-      selectedVisual = 3;
-      removeAllObjects(scene);
-      visualThreeRender();
-    }
-    if (message.data[1] === 40 && message.data[2] === 127 && selectedVisual !== 4) {
-      selectedVisual = 4;
-      removeAllObjects(scene);
-      visualFourRender();
+      renderFunctions[selectedVisual]();
     }
 
-    switch (selectedVisual) {
-    case 1:
-      visualOneControls(message);
-      break;
-    case 2:
-      visualTwoControls(message);
-      break;
-    case 3:
-      visualThreeControls(message);
-      break;
-    case 4:
-      visualFourControls(message);
-      break;
-    default:
-      visualOneControls(message);
-    }
+    const sceneOnePressed = message.data[1] === 37 && message.data[2] === 127,
+      sceneTwoPressed = message.data[1] === 38 && message.data[2] === 127,
+      sceneThreePressed = message.data[1] === 39 && message.data[2] === 127,
+      sceneFourPressed = message.data[1] === 34 && message.data[2] === 127;
 
+    const getVisualFromMessage = () => {
+      if (sceneOnePressed && selectedVisual !== 1) {
+        return 1;
+      }
+      if (sceneTwoPressed && selectedVisual !== 2) {
+        return 2;
+      }
+      if (sceneThreePressed && selectedVisual !== 3) {
+        return 3;
+      }
+      if (sceneFourPressed && selectedVisual !== 4) {
+        return 4;
+      }
+      return false;
+    };
+
+    visualControls(selectedVisual, message);
+
+    // switch (selectedVisual) {
+    // case 1:
+    //   visualOneControls(message);
+    //   break;
+    // case 2:
+    //   visualTwoControls(message);
+    //   break;
+    // case 3:
+    //   visualThreeControls(message);
+    //   break;
+    // case 4:
+    //   visualFourControls(message);
+    //   break;
+    // }
   };
 };
 
-// MIDI LOGIC FOR DIFFERENT SCENES
-const visualOneControls = message => {
-  console.log(`[VISUAL 1]`, message.data);
+const visualControls = (selectedVisual, message) => {
+  const ctrlFilOne = message.data[1] === 6,
+    ctrlFilTwo = message.data[1] === 7,
+    ctrlFilThree = message.data[1] === 8,
 
-  // CUBE PROPS
-  if (message.data[1] === 6) {
-    cubeProps.width = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.width);
-  }
-  if (message.data[1] === 7) {
-    cubeProps.height = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.height);
-  }
-  if (message.data[1] === 8) {
-    cubeProps.depth = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.depth);
+    ctrlSldrOne = message.data[1] === 2,
+    ctrlSldrTwo = message.data[1] === 3,
+    ctrlSldrThree = message.data[1] === 4,
+
+    filterMapValue = (message.data[2], 0, 127),
+    sliderMapValue = (message.data[2], 0, 127);
+
+  if (selectedVisual === 1) {
+    console.log(`[VISUAL 1]`, message.data);
+    // CUBE PROPS
+    if (ctrlFilOne) {
+      cubeProps.width = mapRange(filterMapValue, cubeProps.width, cubeMaxProps.width);
+    }
+    if (ctrlFilTwo) {
+      cubeProps.height = mapRange(filterMapValue, cubeProps.height, cubeMaxProps.height);
+    }
+    if (ctrlFilThree) {
+      cubeProps.depth = mapRange(filterMapValue, cubeProps.depth, cubeMaxProps.depth);
+    }
+
+    // CUBE ROTATION
+    if (ctrlSldrOne) {
+      cubeRotation.x = mapRange(sliderMapValue, cubeRotation.x, cubeMaxRotation.x);
+    }
+    if (ctrlSldrTwo) {
+      cubeRotation.y = mapRange(sliderMapValue, cubeRotation.y, cubeMaxRotation.y);
+    }
+    if (ctrlSldrThree) {
+      cubeRotation.z = mapRange(sliderMapValue, cubeRotation.z, cubeMaxRotation.z);
+    }
   }
 
-  // CUBE ROTATION
-  if (message.data[1] === 2) {
-    cubeRotation.x = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.x);
+  if (selectedVisual === 2) {
+    console.log(`[VISUAL 2]`, message.data);
   }
-  if (message.data[1] === 3) {
-    cubeRotation.y = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.y);
+
+  if (selectedVisual === 3) {
+    console.log(`[VISUAL 2]`, message.data);
   }
-  if (message.data[1] === 4) {
-    cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
+
+  if (selectedVisual === 4) {
+    console.log(`[VISUAL 2]`, message.data);
   }
+
 };
 
-const visualTwoControls = message => {
-  console.log(`[VISUAL 2]`, message.data);
-};
-
-const visualThreeControls = message => {
-  console.log(`[VISUAL 3]`, message.data);
-};
-
-const visualFourControls = message => {
-  console.log(`[VISUAL 4]`, message.data);
-};
+// // MIDI LOGIC FOR DIFFERENT SCENES
+// const visualOneControls = message => {
+//   console.log(`[VISUAL 1]`, message.data);
+//
+//   // CUBE PROPS
+//   if (message.data[1] === 6) {
+//     cubeProps.width = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.width);
+//   }
+//   if (message.data[1] === 7) {
+//     cubeProps.height = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.height);
+//   }
+//   if (message.data[1] === 8) {
+//     cubeProps.depth = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.depth);
+//   }
+//
+//   // CUBE ROTATION
+//   if (message.data[1] === 2) {
+//     cubeRotation.x = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.x);
+//   }
+//   if (message.data[1] === 3) {
+//     cubeRotation.y = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.y);
+//   }
+//   if (message.data[1] === 4) {
+//     cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
+//   }
+// };
+//
+// const visualTwoControls = message => {
+//   console.log(`[VISUAL 2]`, message.data);
+// };
+//
+// const visualThreeControls = message => {
+//   console.log(`[VISUAL 3]`, message.data);
+// };
+//
+// const visualFourControls = message => {
+//   console.log(`[VISUAL 4]`, message.data);
+// };
 
 const createScene = () => {
   HEIGHT = window.innerHeight;

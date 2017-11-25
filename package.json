@@ -2,7 +2,7 @@
   "name": "vj-app",
   "version": "0.1.0",
   "scripts": {
-    "development": "npm run clean && NODE_ENV=development webpack-dev-server --open",
+    "development": "npm run clean && NODE_ENV=development webpack-dev-server",
     "serve": "ws -d ./dist -c -p 3000 ",
     "clean": "rimraf ./dist",
     "production": "npm run clean && NODE_ENV=production webpack -p"
