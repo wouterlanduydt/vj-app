@@ -1,4 +1,6 @@
 import Cube from './objects/Cube';
+import Hexagon from './objects/Hexagon';
+import Ball from './objects/Ball';
 import mapRange from './lib/mapRange';
 import removeAllObjects from './lib/removeAllObjects';
 import getVisualFromMessage from './lib/getVisualFromMessage';
@@ -14,7 +16,7 @@ let scene,
   renderer,
   container;
 
-let cube;
+let cube, hexagon, ball;
 
 let selectedVisual;
 
@@ -69,8 +71,8 @@ const configureMidiControlls = () => {
     const visualFromMessage = getVisualFromMessage(message, selectedVisual);
 
     if (visualFromMessage && selectedVisual !== visualFromMessage) {
-      selectedVisual = visualFromMessage;
       removeAllObjects(scene);
+      selectedVisual = visualFromMessage;
       createFunctions[selectedVisual]();
     }
 
@@ -160,6 +162,8 @@ const visualOneCreate = () => {
 
 const visualTwoCreate = () => {
   console.log(`[CREATE VISUAL 2]`);
+  createHexagon();
+  createBall();
 };
 
 const visualThreeCreate = () => {
@@ -173,6 +177,16 @@ const visualFourCreate = () => {
 const createCube = () => {
   cube = new Cube();
   scene.add(cube.mesh);
+};
+
+const createHexagon = () => {
+  hexagon = new Hexagon();
+  scene.add(hexagon.mesh);
+};
+
+const createBall = () => {
+  ball = new Ball();
+  scene.add(ball.mesh);
 };
 
 const updateCube = () => {

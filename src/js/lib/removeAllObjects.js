@@ -1,5 +1,5 @@
 export default function removeAllObjects(scene)  {
-  for (let i = 0;i < scene.children.length;i ++) {
-    scene.remove(scene.children[i]);
+  while (scene.children.length > 0) {
+    scene.remove(scene.children[0]);
   }
 }
