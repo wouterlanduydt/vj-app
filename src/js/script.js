@@ -17,6 +17,14 @@ let scene,
   renderer,
   container;
 
+let audio,
+  source,
+  context,
+  analyser,
+  fbcArray;
+
+const freqArray = [];
+
 let cube, translatedCube, ball, triangle;
 
 let selectedVisual;
@@ -53,8 +61,65 @@ const cubeMaxProps = {width: 800, height: 800, depth: 800},
 // Midi Mode
 const init = () => {
   configureMidiControlls();
+  configureAudio();
   createScene();
   loop();
+};
+
+const configureAudio = () => {
+  // Create HTML audio element (needs to collect mic input)
+  audio = new Audio();
+  audio.src = `../assets/audio/thewayudo.mp3`;
+  audio.controls = true;
+  audio.autoplay = true;
+  audio.className = `mic`;
+  document.getElementById(`audio`).appendChild(audio);
+
+  // MIC CODE
+  // const mic = document.querySelector(`.mic`);
+  //
+  // const constraints = window.constraints = {
+  //   audio: true,
+  //   video: false
+  // };
+  //
+  // navigator.mediaDevices.getUserMedia(constraints).
+  //   then(handleSuccess).catch(handleError);
+  //
+  // function handleSuccess(stream) {
+  //   const audioTracks = stream.getAudioTracks();
+  //   console.log(`Got stream with constraints:`, constraints);
+  //   console.log(`Using audio device: ${  audioTracks[0].label}`);
+  //   stream.oninactive = function() {
+  //     console.log(`Stream ended`);
+  //   };
+  //   window.stream = stream; // make variable available to browser console
+  //   mic.srcObject = stream;
+  // }
+  //
+  // function handleError(error) {
+  //   console.log(`navigator.getUserMedia error: `, error);
+  // }
+
+  context = new AudioContext();
+  analyser = context.createAnalyser();
+  source = context.createMediaElementSource(audio);
+  source.connect(analyser);
+  analyser.connect(context.destination);
+
+  audioLooper();
+};
+
+const audioLooper = () => {
+  requestAnimationFrame(audioLooper);
+  fbcArray = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(fbcArray);
+
+  const differentFreqs = 3;
+  for (let i = 0;i < differentFreqs;i ++) {
+    freqArray[i] = fbcArray[i];
+    console.log(freqArray);
+  }
 };
 
 const configureMidiControlls = () => {
@@ -239,9 +304,9 @@ const updateSceneOne = () => {
   cube.mesh.rotation.y += cubeRotation.y;
   cube.mesh.rotation.z += cubeRotation.z;
 
-  cube.mesh.scale.x = cubeProps.width;
-  cube.mesh.scale.y = cubeProps.height;
-  cube.mesh.scale.z = cubeProps.depth;
+  cube.mesh.scale.x = freqArray[0];
+  cube.mesh.scale.y = freqArray[0];
+  cube.mesh.scale.z = freqArray[0];
 };
 
 const updateSceneTwo = () => {
