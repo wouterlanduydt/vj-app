@@ -1,5 +1,6 @@
 import Cube from './objects/Cube';
 import Hexagon from './objects/Hexagon';
+import Triangle from './objects/Triangle';
 import Ball from './objects/Ball';
 import mapRange from './lib/mapRange';
 import removeAllObjects from './lib/removeAllObjects';
@@ -16,12 +17,23 @@ let scene,
   renderer,
   container;
 
-let cube, hexagon, ball;
+let cube, hexagon, ball, triangle;
 
 let selectedVisual;
 
-const cameraPos = {z: 0},
+// Development Mode
+const cameraPos = {z: 30},
   cameraMaxPos = {z: 1000};
+
+// Midi Mode
+// const cameraPos = {z: 0},
+//   cameraMaxPos = {z: 1000};
+
+const ballRotation = {x: 0, y: 0, z: 0},
+  hexagonRotation = {x: 0, y: 0, z: 0};
+
+const ballMaxRotation = {x: 0.3, y: 0.3, z: 0.3},
+  hexagonMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
 const cubeProps = {width: 10, height: 10, depth: 10},
   cubeRotation = {x: 0, y: 0, z: 0};
@@ -29,11 +41,21 @@ const cubeProps = {width: 10, height: 10, depth: 10},
 const cubeMaxProps = {width: 800, height: 800, depth: 800},
   cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
+// Development Mode
 const init = () => {
   configureMidiControlls();
   createScene();
+  visualTwoCreate();
+  selectedVisual = 2;
   loop();
 };
+
+// Midi Mode
+// const init = () => {
+//   configureMidiControlls();
+//   createScene();
+//   loop();
+// };
 
 const configureMidiControlls = () => {
   if (navigator.requestMIDIAccess) {
@@ -116,7 +138,16 @@ const visualControls = (selectedVisual, message) => {
   }
 
   if (selectedVisual === 2) {
-    console.log(`[VISUAL 2]`);
+    // CUBE ROTATION
+    if (ctrlSldrOne) {
+      ballRotation.y = mapRange(message.data[2], 0, 127, 0, ballMaxRotation.y);
+    }
+    if (ctrlSldrTwo) {
+      hexagonRotation.y = mapRange(message.data[2], 0, 127, 0, hexagonMaxRotation.y);
+    }
+    if (ctrlSldrThree) {
+      hexagonRotation.z = mapRange(message.data[2], 0, 127, 0, hexagonMaxRotation.z);
+    }
   }
 
   if (selectedVisual === 3) {
@@ -142,12 +173,21 @@ const createScene = () => {
     1,
     10000
   );
+  const light = new THREE.PointLight(0xffffff, 2, 100, 5);
+  light.position.set(3, 0, 15);
+  light.castShadow = true;
+  scene.add(light);
+
+  // const pointLightHelper = new THREE.PointLightHelper(light, 1, 0xff0000);
+  // scene.add(pointLightHelper);
 
   renderer = new THREE.WebGLRenderer({
     alpha: true,
     antialias: true
   });
   renderer.setSize(WIDTH, HEIGHT);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
 
   container = document.getElementById(`scene`);
   container.appendChild(renderer.domElement);
@@ -164,6 +204,7 @@ const visualTwoCreate = () => {
   console.log(`[CREATE VISUAL 2]`);
   createHexagon();
   createBall();
+  createTriangle();
 };
 
 const visualThreeCreate = () => {
@@ -181,15 +222,28 @@ const createCube = () => {
 
 const createHexagon = () => {
   hexagon = new Hexagon();
+  hexagon.castShadow = true;
+  hexagon.receiveShadow = true;
+
   scene.add(hexagon.mesh);
+};
+
+const createTriangle = () => {
+  triangle = new Triangle();
+  // triangle.castShadow = true;
+  // triangle.receiveShadow = true;
+
+  scene.add(triangle.mesh);
 };
 
 const createBall = () => {
   ball = new Ball();
+  ball.castShadow = true;
+  ball.receiveShadow = true;
   scene.add(ball.mesh);
 };
 
-const updateCube = () => {
+const updateSceneOne = () => {
   cube.mesh.rotation.x += cubeRotation.x;
   cube.mesh.rotation.y += cubeRotation.y;
   cube.mesh.rotation.z += cubeRotation.z;
@@ -199,12 +253,36 @@ const updateCube = () => {
   cube.mesh.scale.z = cubeProps.depth;
 };
 
+const updateSceneTwo = () => {
+  ball.mesh.rotation.y += ballRotation.y;
+
+  hexagon.mesh.rotation.y += hexagonRotation.y;
+  hexagon.mesh.rotation.z += hexagonRotation.z;
+};
+
+const updateSceneThree = () => {
+  console.log(`scene three controls`);
+};
+
+const updateSceneFour = () => {
+  console.log(`scene four controls`);
+};
+
 const loop = () => {
   camera.position.z = cameraPos.z;
   renderer.render(scene, camera);
 
   if (selectedVisual === 1) {
-    updateCube();
+    updateSceneOne();
+  }
+  if (selectedVisual === 2) {
+    updateSceneTwo();
+  }
+  if (selectedVisual === 3) {
+    updateSceneThree();
+  }
+  if (selectedVisual === 4) {
+    updateSceneFour();
   }
 
   requestAnimationFrame(loop);
