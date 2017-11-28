@@ -47,10 +47,35 @@ const configureAudio = () => {
   audio = new Audio();
   audio.src = `../assets/audio/thewayudo.mp3`;
   audio.controls = true;
-  audio.crossOrigin = `anonymous`;
-  audio.loop = true;
   audio.autoplay = true;
+  audio.className = `mic`;
   document.getElementById(`audio`).appendChild(audio);
+
+  // MIC CODE
+  // const mic = document.querySelector(`.mic`);
+  //
+  // const constraints = window.constraints = {
+  //   audio: true,
+  //   video: false
+  // };
+  //
+  // navigator.mediaDevices.getUserMedia(constraints).
+  //   then(handleSuccess).catch(handleError);
+  //
+  // function handleSuccess(stream) {
+  //   const audioTracks = stream.getAudioTracks();
+  //   console.log(`Got stream with constraints:`, constraints);
+  //   console.log(`Using audio device: ${  audioTracks[0].label}`);
+  //   stream.oninactive = function() {
+  //     console.log(`Stream ended`);
+  //   };
+  //   window.stream = stream; // make variable available to browser console
+  //   mic.srcObject = stream;
+  // }
+  //
+  // function handleError(error) {
+  //   console.log(`navigator.getUserMedia error: `, error);
+  // }
 
   context = new AudioContext();
   analyser = context.createAnalyser();
@@ -69,6 +94,7 @@ const audioLooper = () => {
   const differentFreqs = 3;
   for (let i = 0;i < differentFreqs;i ++) {
     freqArray[i] = fbcArray[i];
+    console.log(freqArray);
   }
 };
 
@@ -219,9 +245,9 @@ const updateCube = () => {
   cube.mesh.rotation.y += cubeRotation.y;
   cube.mesh.rotation.z += cubeRotation.z;
 
-  cube.mesh.scale.x = cubeProps.width * freqArray[0];
-  cube.mesh.scale.y = cubeProps.height * freqArray[0];
-  cube.mesh.scale.z = cubeProps.depth * freqArray[0];
+  cube.mesh.scale.x = freqArray[0];
+  cube.mesh.scale.y = freqArray[0];
+  cube.mesh.scale.z = freqArray[0];
 };
 
 const loop = () => {
