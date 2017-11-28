@@ -1,7 +1,7 @@
-import Cube from './objects/Cube';
-import Hexagon from './objects/Hexagon';
-import Triangle from './objects/Triangle';
-import Ball from './objects/Ball';
+import Cube from './objects/cube';
+import TranslatedCube from './objects/translatedCube';
+import Triangle from './objects/triangle';
+import Ball from './objects/ball';
 import mapRange from './lib/mapRange';
 import removeAllObjects from './lib/removeAllObjects';
 import getVisualFromMessage from './lib/getVisualFromMessage';
@@ -17,23 +17,23 @@ let scene,
   renderer,
   container;
 
-let cube, hexagon, ball, triangle;
+let cube, translatedCube, ball, triangle;
 
 let selectedVisual;
 
 // Development Mode
-const cameraPos = {z: 30},
-  cameraMaxPos = {z: 1000};
-
-// Midi Mode
-// const cameraPos = {z: 0},
+// const cameraPos = {z: 30},
 //   cameraMaxPos = {z: 1000};
 
+// Midi Mode
+const cameraPos = {z: 0},
+  cameraMaxPos = {z: 1000};
+
 const ballRotation = {x: 0, y: 0, z: 0},
-  hexagonRotation = {x: 0, y: 0, z: 0};
+  translatedCubeRotation = {x: 0, y: 0, z: 0};
 
 const ballMaxRotation = {x: 0.3, y: 0.3, z: 0.3},
-  hexagonMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
+  translatedCubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
 const cubeProps = {width: 10, height: 10, depth: 10},
   cubeRotation = {x: 0, y: 0, z: 0};
@@ -42,20 +42,20 @@ const cubeMaxProps = {width: 800, height: 800, depth: 800},
   cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
 // Development Mode
-const init = () => {
-  configureMidiControlls();
-  createScene();
-  visualTwoCreate();
-  selectedVisual = 2;
-  loop();
-};
-
-// Midi Mode
 // const init = () => {
 //   configureMidiControlls();
 //   createScene();
+//   visualTwoCreate();
+//   selectedVisual = 2;
 //   loop();
 // };
+
+// Midi Mode
+const init = () => {
+  configureMidiControlls();
+  createScene();
+  loop();
+};
 
 const configureMidiControlls = () => {
   if (navigator.requestMIDIAccess) {
@@ -143,10 +143,10 @@ const visualControls = (selectedVisual, message) => {
       ballRotation.y = mapRange(message.data[2], 0, 127, 0, ballMaxRotation.y);
     }
     if (ctrlSldrTwo) {
-      hexagonRotation.y = mapRange(message.data[2], 0, 127, 0, hexagonMaxRotation.y);
+      translatedCubeRotation.y = mapRange(message.data[2], 0, 127, 0, translatedCubeMaxRotation.y);
     }
     if (ctrlSldrThree) {
-      hexagonRotation.z = mapRange(message.data[2], 0, 127, 0, hexagonMaxRotation.z);
+      translatedCubeRotation.z = mapRange(message.data[2], 0, 127, 0, translatedCubeMaxRotation.z);
     }
   }
 
@@ -165,6 +165,7 @@ const createScene = () => {
   WIDTH = window.innerWidth;
 
   scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1a1a1a);
   aspectRatio = WIDTH / HEIGHT;
   fieldOfView = 60;
   camera = new THREE.PerspectiveCamera(
@@ -202,7 +203,7 @@ const visualOneCreate = () => {
 
 const visualTwoCreate = () => {
   console.log(`[CREATE VISUAL 2]`);
-  createHexagon();
+  createTranslatedCube();
   createBall();
   createTriangle();
 };
@@ -220,12 +221,12 @@ const createCube = () => {
   scene.add(cube.mesh);
 };
 
-const createHexagon = () => {
-  hexagon = new Hexagon();
-  hexagon.castShadow = true;
-  hexagon.receiveShadow = true;
+const createTranslatedCube = () => {
+  translatedCube = new TranslatedCube();
+  translatedCube.castShadow = true;
+  translatedCube.receiveShadow = true;
 
-  scene.add(hexagon.mesh);
+  scene.add(translatedCube.mesh);
 };
 
 const createTriangle = () => {
@@ -254,10 +255,17 @@ const updateSceneOne = () => {
 };
 
 const updateSceneTwo = () => {
-  ball.mesh.rotation.y += ballRotation.y;
+  // Midi
+  translatedCube.mesh.rotation.y += translatedCubeRotation.y;
 
-  hexagon.mesh.rotation.y += hexagonRotation.y;
-  hexagon.mesh.rotation.z += hexagonRotation.z;
+  ball.mesh.rotation.y += ballRotation.y;
+  ball.mesh.rotation.z += ballRotation.z;
+
+  // Development
+  // translatedCube.mesh.rotation.y += .02;
+  //
+  // ball.mesh.rotation.y += .05;
+  // ball.mesh.rotation.x += .02;
 };
 
 const updateSceneThree = () => {
