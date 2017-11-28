@@ -103,13 +103,13 @@ const configureMidiControlls = () => {
 };
 
 const visualControls = (selectedVisual, message) => {
-  const ctrlFilOne = message.data[1] === 6,
-    ctrlFilTwo = message.data[1] === 7,
-    ctrlFilThree = message.data[1] === 8,
+  const ctrlFilOne = message.data[1] === 2,
+    ctrlFilTwo = message.data[1] === 3,
+    ctrlFilThree = message.data[1] === 4,
 
-    ctrlSldrOne = message.data[1] === 2,
-    ctrlSldrTwo = message.data[1] === 3,
-    ctrlSldrThree = message.data[1] === 4;
+    ctrlSldrOne = message.data[1] === 6,
+    ctrlSldrTwo = message.data[1] === 7,
+    ctrlSldrThree = message.data[1] === 8;
 
   if (selectedVisual === 1) {
     console.log(`[VISUAL 1]`);
@@ -174,10 +174,10 @@ const createScene = () => {
     1,
     10000
   );
-  const light = new THREE.PointLight(0xffffff, 2, 100, 5);
-  light.position.set(3, 0, 15);
-  light.castShadow = true;
-  scene.add(light);
+  // const light = new THREE.PointLight(0xffffff, 2, 100, 5);
+  // light.position.set(3, 0, 15);
+  // light.castShadow = true;
+  // scene.add(light);
 
   // const pointLightHelper = new THREE.PointLightHelper(light, 1, 0xff0000);
   // scene.add(pointLightHelper);
@@ -187,8 +187,6 @@ const createScene = () => {
     antialias: true
   });
   renderer.setSize(WIDTH, HEIGHT);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
 
   container = document.getElementById(`scene`);
   container.appendChild(renderer.domElement);
@@ -223,24 +221,16 @@ const createCube = () => {
 
 const createTranslatedCube = () => {
   translatedCube = new TranslatedCube();
-  translatedCube.castShadow = true;
-  translatedCube.receiveShadow = true;
-
   scene.add(translatedCube.mesh);
 };
 
 const createTriangle = () => {
   triangle = new Triangle();
-  // triangle.castShadow = true;
-  // triangle.receiveShadow = true;
-
   scene.add(triangle.mesh);
 };
 
 const createBall = () => {
   ball = new Ball();
-  ball.castShadow = true;
-  ball.receiveShadow = true;
   scene.add(ball.mesh);
 };
 
