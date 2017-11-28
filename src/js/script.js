@@ -14,6 +14,14 @@ let scene,
   renderer,
   container;
 
+let audio,
+  source,
+  context,
+  analyser,
+  fbcArray;
+
+const freqArray = [];
+
 let cube;
 
 let selectedVisual;
@@ -29,8 +37,39 @@ const cubeMaxProps = {width: 800, height: 800, depth: 800},
 
 const init = () => {
   configureMidiControlls();
+  configureAudio();
   createScene();
   loop();
+};
+
+const configureAudio = () => {
+  // Create HTML audio element (needs to collect mic input)
+  audio = new Audio();
+  audio.src = `../assets/audio/thewayudo.mp3`;
+  audio.controls = true;
+  audio.crossOrigin = `anonymous`;
+  audio.loop = true;
+  audio.autoplay = true;
+  document.getElementById(`audio`).appendChild(audio);
+
+  context = new AudioContext();
+  analyser = context.createAnalyser();
+  source = context.createMediaElementSource(audio);
+  source.connect(analyser);
+  analyser.connect(context.destination);
+
+  audioLooper();
+};
+
+const audioLooper = () => {
+  requestAnimationFrame(audioLooper);
+  fbcArray = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(fbcArray);
+
+  const differentFreqs = 3;
+  for (let i = 0;i < differentFreqs;i ++) {
+    freqArray[i] = fbcArray[i];
+  }
 };
 
 const configureMidiControlls = () => {
@@ -180,9 +219,9 @@ const updateCube = () => {
   cube.mesh.rotation.y += cubeRotation.y;
   cube.mesh.rotation.z += cubeRotation.z;
 
-  cube.mesh.scale.x = cubeProps.width;
-  cube.mesh.scale.y = cubeProps.height;
-  cube.mesh.scale.z = cubeProps.depth;
+  cube.mesh.scale.x = cubeProps.width * freqArray[0];
+  cube.mesh.scale.y = cubeProps.height * freqArray[0];
+  cube.mesh.scale.z = cubeProps.depth * freqArray[0];
 };
 
 const loop = () => {
