@@ -29,14 +29,6 @@ let cube, translatedCube, ball, triangle;
 
 let selectedVisual;
 
-// Development Mode
-// const cameraPos = {z: 30},
-//   cameraMaxPos = {z: 1000};
-
-// Midi Mode
-const cameraPos = {z: 0},
-  cameraMaxPos = {z: 1000};
-
 const ballRotation = {x: 0, y: 0, z: 0},
   translatedCubeRotation = {x: 0, y: 0, z: 0};
 
@@ -50,8 +42,12 @@ const cubeMaxProps = {width: 800, height: 800, depth: 800},
   cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
 // Development Mode
+// const cameraPos = {z: 30},
+//   cameraMaxPos = {z: 1000};
+//
 // const init = () => {
 //   configureMidiControlls();
+//   configureAudio();
 //   createScene();
 //   visualTwoCreate();
 //   selectedVisual = 2;
@@ -59,6 +55,9 @@ const cubeMaxProps = {width: 800, height: 800, depth: 800},
 // };
 
 // Midi Mode
+const cameraPos = {z: 0},
+  cameraMaxPos = {z: 1000};
+
 const init = () => {
   configureMidiControlls();
   configureAudio();
@@ -118,7 +117,7 @@ const audioLooper = () => {
   const differentFreqs = 3;
   for (let i = 0;i < differentFreqs;i ++) {
     freqArray[i] = fbcArray[i];
-    console.log(freqArray);
+    // console.log(freqArray);
   }
 };
 
@@ -208,10 +207,10 @@ const visualControls = (selectedVisual, message) => {
       ballRotation.y = mapRange(message.data[2], 0, 127, 0, ballMaxRotation.y);
     }
     if (ctrlSldrTwo) {
-      translatedCubeRotation.y = mapRange(message.data[2], 0, 127, 0, translatedCubeMaxRotation.y);
+      ballRotation.z = mapRange(message.data[2], 0, 127, 0, ballMaxRotation.z);
     }
     if (ctrlSldrThree) {
-      translatedCubeRotation.z = mapRange(message.data[2], 0, 127, 0, translatedCubeMaxRotation.z);
+      translatedCubeRotation.y = mapRange(message.data[2], 0, 127, 0, translatedCubeMaxRotation.y);
     }
   }
 
@@ -239,13 +238,6 @@ const createScene = () => {
     1,
     10000
   );
-  // const light = new THREE.PointLight(0xffffff, 2, 100, 5);
-  // light.position.set(3, 0, 15);
-  // light.castShadow = true;
-  // scene.add(light);
-
-  // const pointLightHelper = new THREE.PointLightHelper(light, 1, 0xff0000);
-  // scene.add(pointLightHelper);
 
   renderer = new THREE.WebGLRenderer({
     alpha: true,
@@ -269,6 +261,14 @@ const visualTwoCreate = () => {
   createTranslatedCube();
   createBall();
   createTriangle();
+
+  const light = new THREE.PointLight(0xffffff, 2, 100, 5);
+  light.position.set(3, 0, 15);
+  light.castShadow = true;
+  scene.add(light);
+
+  // const pointLightHelper = new THREE.PointLightHelper(light, 1, 0xff0000);
+  // scene.add(pointLightHelper);
 };
 
 const visualThreeCreate = () => {
@@ -286,6 +286,7 @@ const createCube = () => {
 
 const createTranslatedCube = () => {
   translatedCube = new TranslatedCube();
+  translatedCube.receiveShadow = true;
   scene.add(translatedCube.mesh);
 };
 
@@ -296,6 +297,7 @@ const createTriangle = () => {
 
 const createBall = () => {
   ball = new Ball();
+  ball.receiveShadow = true;
   scene.add(ball.mesh);
 };
 
