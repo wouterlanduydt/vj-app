@@ -68,37 +68,41 @@ const init = () => {
 const configureAudio = () => {
   // Create HTML audio element (needs to collect mic input)
   audio = new Audio();
-  audio.src = `../assets/audio/thewayudo.mp3`;
+  // audio.src = `../assets/audio/thewayudo.mp3`;
   audio.controls = true;
-  audio.autoplay = true;
+  audio.muted = true;
   audio.className = `mic`;
   document.getElementById(`audio`).appendChild(audio);
 
   // MIC CODE
   // const mic = document.querySelector(`.mic`);
-  //
-  // const constraints = window.constraints = {
-  //   audio: true,
-  //   video: false
-  // };
-  //
-  // navigator.mediaDevices.getUserMedia(constraints).
-  //   then(handleSuccess).catch(handleError);
-  //
-  // function handleSuccess(stream) {
-  //   const audioTracks = stream.getAudioTracks();
-  //   console.log(`Got stream with constraints:`, constraints);
-  //   console.log(`Using audio device: ${  audioTracks[0].label}`);
-  //   stream.oninactive = function() {
-  //     console.log(`Stream ended`);
-  //   };
-  //   window.stream = stream; // make variable available to browser console
-  //   mic.srcObject = stream;
-  // }
-  //
-  // function handleError(error) {
-  //   console.log(`navigator.getUserMedia error: `, error);
-  // }
+
+  let sourceNode;
+
+  const constraints = window.constraints = {
+    audio: true,
+    video: false
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints).
+    then(handleSuccess).catch(handleError);
+
+  function handleSuccess(stream) {
+    const audioTracks = stream.getAudioTracks();
+    console.log(`Got stream with constraints:`, constraints);
+    console.log(`Using audio device: ${  audioTracks[0].label}`);
+    stream.oninactive = function() {
+      console.log(`Stream ended`);
+    };
+    window.stream = stream; // make variable available to browser console
+    // mic.srcObject = stream;
+    sourceNode = context.createMediaStreamSource(stream);
+    sourceNode.connect(analyser);
+  }
+
+  function handleError(error) {
+    console.log(`navigator.getUserMedia error: `, error);
+  }
 
   context = new AudioContext();
   analyser = context.createAnalyser();
@@ -306,9 +310,9 @@ const updateSceneOne = () => {
   cube.mesh.rotation.y += cubeRotation.y;
   cube.mesh.rotation.z += cubeRotation.z;
 
-  cube.mesh.scale.x = freqArray[0];
-  cube.mesh.scale.y = freqArray[0];
-  cube.mesh.scale.z = freqArray[0];
+  cube.mesh.scale.x = freqArray[1];
+  cube.mesh.scale.y = freqArray[1];
+  cube.mesh.scale.z = freqArray[1];
 };
 
 const updateSceneTwo = () => {
@@ -317,6 +321,14 @@ const updateSceneTwo = () => {
 
   ball.mesh.rotation.y += ballRotation.y;
   ball.mesh.rotation.z += ballRotation.z;
+
+  ball.mesh.scale.x = freqArray[1] / 100;
+  ball.mesh.scale.y = freqArray[1] / 100;
+  ball.mesh.scale.z = freqArray[1] / 100;
+
+  translatedCube.mesh.scale.x = freqArray[1] / 100;
+  translatedCube.mesh.scale.y = freqArray[1] / 100;
+  translatedCube.mesh.scale.z = freqArray[1] / 100;
 
   // Development
   // translatedCube.mesh.rotation.y += .02;
