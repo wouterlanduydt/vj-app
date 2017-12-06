@@ -7,18 +7,6 @@ export default class Ball {
   constructor() {
     this.mesh = new THREE.Object3D();
 
-    // body = document.getElementsByTagName(`body`);
-    // video = document.createElement(`video`);
-    // sourceMP4 = document.createElement(`source`);
-    // sourceMP4.src =  `../assets/video/excision.mp4`;
-    // sourceMP4.type = `video.mp4`;
-    // video.autoplay = true;
-    // video.loop = true;
-    // video.muted = true;
-    //
-    // video.appendChild(sourceMP4);
-    // body.appendChild(video);
-
     video = document.getElementById(`video1`);
 
     texture = new THREE.VideoTexture(video);
