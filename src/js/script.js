@@ -3,6 +3,7 @@ import TranslatedCube from './objects/translatedCube';
 import Triangle from './objects/triangle';
 import Ball from './objects/ball';
 import mapRange from './lib/mapRange';
+import rgbToHex from './lib/rgbToHex';
 import removeAllObjects from './lib/removeAllObjects';
 import getVisualFromMessage from './lib/getVisualFromMessage';
 
@@ -29,17 +30,19 @@ let cube, translatedCube, ball, triangle;
 
 let selectedVisual;
 
+const color = {r: 0, g: 0, b: 0, max: 255};
+
 const ballRotation = {x: 0, y: 0, z: 0},
   translatedCubeRotation = {x: 0, y: 0, z: 0};
 
 const ballMaxRotation = {x: 0.3, y: 0.3, z: 0.3},
   translatedCubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
-const cubeProps = {width: 10, height: 10, depth: 10},
-  cubeRotation = {x: 0, y: 0, z: 0};
+// const cubeProps = {width: 10, height: 10, depth: 10},
+const cubeRotation = {x: 0, y: 0, z: 0};
 
-const cubeMaxProps = {width: 800, height: 800, depth: 800},
-  cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
+// const cubeMaxProps = {width: 800, height: 800, depth: 800},
+const cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
 // Development Mode
 // const cameraPos = {z: 30},
@@ -55,8 +58,7 @@ const cubeMaxProps = {width: 800, height: 800, depth: 800},
 // };
 
 // Midi Mode
-const cameraPos = {z: 0},
-  cameraMaxPos = {z: 1000};
+const cameraPos = {z: 400, min: 400, max: 1000};
 
 const init = () => {
   configureMidiControlls();
@@ -68,7 +70,7 @@ const init = () => {
 const configureAudio = () => {
   // Create HTML audio element (needs to collect mic input)
   audio = new Audio();
-  // audio.src = `../assets/audio/thewayudo.mp3`;
+  audio.src = `../assets/audio/thewayudo.mp3`;
   audio.controls = true;
   audio.muted = true;
   audio.className = `mic`;
@@ -77,32 +79,32 @@ const configureAudio = () => {
   // MIC CODE
   // const mic = document.querySelector(`.mic`);
 
-  let sourceNode;
-
-  const constraints = window.constraints = {
-    audio: true,
-    video: false
-  };
-
-  navigator.mediaDevices.getUserMedia(constraints).
-    then(handleSuccess).catch(handleError);
-
-  function handleSuccess(stream) {
-    const audioTracks = stream.getAudioTracks();
-    console.log(`Got stream with constraints:`, constraints);
-    console.log(`Using audio device: ${  audioTracks[0].label}`);
-    stream.oninactive = function() {
-      console.log(`Stream ended`);
-    };
-    window.stream = stream; // make variable available to browser console
-    // mic.srcObject = stream;
-    sourceNode = context.createMediaStreamSource(stream);
-    sourceNode.connect(analyser);
-  }
-
-  function handleError(error) {
-    console.log(`navigator.getUserMedia error: `, error);
-  }
+  // let sourceNode;
+  //
+  // const constraints = window.constraints = {
+  //   audio: true,
+  //   video: false
+  // };
+  //
+  // navigator.mediaDevices.getUserMedia(constraints).
+  //   then(handleSuccess).catch(handleError);
+  //
+  // function handleSuccess(stream) {
+  //   const audioTracks = stream.getAudioTracks();
+  //   console.log(`Got stream with constraints:`, constraints);
+  //   console.log(`Using audio device: ${  audioTracks[0].label}`);
+  //   stream.oninactive = function() {
+  //     console.log(`Stream ended`);
+  //   };
+  //   window.stream = stream; // make variable available to browser console
+  //   // mic.srcObject = stream;
+  //   sourceNode = context.createMediaStreamSource(stream);
+  //   sourceNode.connect(analyser);
+  // }
+  //
+  // function handleError(error) {
+  //   console.log(`navigator.getUserMedia error: `, error);
+  // }
 
   context = new AudioContext();
   analyser = context.createAnalyser();
@@ -118,10 +120,14 @@ const audioLooper = () => {
   fbcArray = new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(fbcArray);
 
-  const differentFreqs = 3;
+  const differentFreqs = 4;
   for (let i = 0;i < differentFreqs;i ++) {
-    freqArray[i] = fbcArray[i];
-    // console.log(freqArray);
+    if (fbcArray[i] > 0) {
+      freqArray[i] = fbcArray[i];
+      // console.log(freqArray);
+    } else {
+      freqArray[i] = 1;
+    }
   }
 };
 
@@ -148,7 +154,8 @@ const configureMidiControlls = () => {
 
     // CAMERA Z CONTROLS
     if (message.data[1] === 9) {
-      cameraPos.z = mapRange(message.data[2], 0, 127, 0, cameraMaxPos.z);
+      cameraPos.z = mapRange(message.data[2], 0, 127, cameraPos.min, cameraPos.max);
+      console.log(cameraPos.z);
     }
 
     const createFunctions = {
@@ -184,13 +191,13 @@ const visualControls = (selectedVisual, message) => {
 
     // CUBE PROPS
     if (ctrlFilOne) {
-      cubeProps.width = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.width);
+      color.r = mapRange(message.data[2], 0, 127, 0, color.max);
     }
     if (ctrlFilTwo) {
-      cubeProps.height = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.height);
+      color.g = mapRange(message.data[2], 0, 127, 10, color.max);
     }
     if (ctrlFilThree) {
-      cubeProps.depth = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.depth);
+      color.b = mapRange(message.data[2], 0, 127, 10, color.max);
     }
 
     // CUBE ROTATION
@@ -313,6 +320,9 @@ const updateSceneOne = () => {
   cube.mesh.scale.x = freqArray[1];
   cube.mesh.scale.y = freqArray[1];
   cube.mesh.scale.z = freqArray[1];
+
+  const hex = rgbToHex(color.r, color.g, color.b);
+  cube.cube.material.color.setHex(hex);
 };
 
 const updateSceneTwo = () => {

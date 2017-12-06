@@ -6,7 +6,7 @@ export default class Cube {
     this.mesh = new THREE.Object3D();
 
     const geometry = new THREE.BoxGeometry(1, 1, 1, 10, 10, 10);
-    const material = new THREE.MeshNormalMaterial({wireframe: false});
+    const material = new THREE.MeshBasicMaterial({color: 0xff0000});
     this.cube = new THREE.Mesh(geometry, material);
     this.cube.receiveShadow = true;
     this.mesh.add(this.cube);
