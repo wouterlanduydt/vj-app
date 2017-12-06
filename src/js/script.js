@@ -42,40 +42,37 @@ const cubeMaxProps = {width: 800, height: 800, depth: 800},
   cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
 // Development Mode
-// const cameraPos = {z: 30},
+const cameraPos = {z: 30},
+  cameraMaxPos = {z: 1000};
+
+const init = () => {
+  configureMidiControlls();
+  configureAudio();
+  configureWebcam();
+  createScene();
+  visualTwoCreate();
+  selectedVisual = 2;
+  loop();
+};
+
+// Midi Mode
+// const cameraPos = {z: 0},
 //   cameraMaxPos = {z: 1000};
 //
 // const init = () => {
 //   configureMidiControlls();
 //   configureAudio();
 //   createScene();
-//   visualTwoCreate();
-//   selectedVisual = 2;
 //   loop();
 // };
 
-// Midi Mode
-const cameraPos = {z: 0},
-  cameraMaxPos = {z: 1000};
-
-const init = () => {
-  configureMidiControlls();
-  configureAudio();
-  createScene();
-  loop();
-};
-
 const configureAudio = () => {
-  // Create HTML audio element (needs to collect mic input)
   audio = new Audio();
   // audio.src = `../assets/audio/thewayudo.mp3`;
   audio.controls = true;
-  audio.muted = true;
+  audio.muted = true; // doesn't work...
   audio.className = `mic`;
   document.getElementById(`audio`).appendChild(audio);
-
-  // MIC CODE
-  // const mic = document.querySelector(`.mic`);
 
   let sourceNode;
 
@@ -95,7 +92,6 @@ const configureAudio = () => {
       console.log(`Stream ended`);
     };
     window.stream = stream; // make variable available to browser console
-    // mic.srcObject = stream;
     sourceNode = context.createMediaStreamSource(stream);
     sourceNode.connect(analyser);
   }
@@ -122,6 +118,31 @@ const audioLooper = () => {
   for (let i = 0;i < differentFreqs;i ++) {
     freqArray[i] = fbcArray[i];
     // console.log(freqArray);
+  }
+};
+
+const configureWebcam = () => {
+  const constraints = window.constraints = {
+    audio: false,
+    video: true
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints).
+    then(handleSuccess).catch(handleError);
+
+  function handleSuccess(stream) {
+    const videoTracks = stream.getVideoTracks();
+    console.log(`Got stream with constraints:`, constraints);
+    console.log(`Using audio device: ${  videoTracks[0].label}`);
+    stream.oninactive = function() {
+      console.log(`Stream ended`);
+    };
+    const video = document.getElementById(`video1`);
+    video.src = window.URL.createObjectURL(stream);
+  }
+
+  function handleError(error) {
+    console.log(`navigator.getUserMedia error: `, error);
   }
 };
 
@@ -153,9 +174,7 @@ const configureMidiControlls = () => {
 
     const createFunctions = {
       1: visualOneCreate,
-      2: visualTwoCreate,
-      3: visualThreeCreate,
-      4: visualFourCreate
+      2: visualTwoCreate
     };
 
     const visualFromMessage = getVisualFromMessage(message, selectedVisual);
@@ -180,8 +199,6 @@ const visualControls = (selectedVisual, message) => {
     ctrlSldrThree = message.data[1] === 8;
 
   if (selectedVisual === 1) {
-    console.log(`[VISUAL 1]`);
-
     // CUBE PROPS
     if (ctrlFilOne) {
       cubeProps.width = mapRange(message.data[2], 0, 127, 10, cubeMaxProps.width);
@@ -216,14 +233,6 @@ const visualControls = (selectedVisual, message) => {
     if (ctrlSldrThree) {
       translatedCubeRotation.y = mapRange(message.data[2], 0, 127, 0, translatedCubeMaxRotation.y);
     }
-  }
-
-  if (selectedVisual === 3) {
-    console.log(`[VISUAL 3]`);
-  }
-
-  if (selectedVisual === 4) {
-    console.log(`[VISUAL 4]`);
   }
 
 };
@@ -275,14 +284,6 @@ const visualTwoCreate = () => {
   // scene.add(pointLightHelper);
 };
 
-const visualThreeCreate = () => {
-  console.log(`[CREATE VISUAL 3]`);
-};
-
-const visualFourCreate = () => {
-  console.log(`[CREATE VISUAL 4]`);
-};
-
 const createCube = () => {
   cube = new Cube();
   scene.add(cube.mesh);
@@ -322,27 +323,19 @@ const updateSceneTwo = () => {
   ball.mesh.rotation.y += ballRotation.y;
   ball.mesh.rotation.z += ballRotation.z;
 
-  ball.mesh.scale.x = freqArray[1] / 100;
-  ball.mesh.scale.y = freqArray[1] / 100;
-  ball.mesh.scale.z = freqArray[1] / 100;
+  ball.mesh.scale.x = 1;
+  ball.mesh.scale.y = 1;
+  ball.mesh.scale.z = 1;
 
-  translatedCube.mesh.scale.x = freqArray[1] / 100;
-  translatedCube.mesh.scale.y = freqArray[1] / 100;
-  translatedCube.mesh.scale.z = freqArray[1] / 100;
+  translatedCube.mesh.scale.x = 1;
+  translatedCube.mesh.scale.y = 1;
+  translatedCube.mesh.scale.z = 1;
 
   // Development
-  // translatedCube.mesh.rotation.y += .02;
-  //
-  // ball.mesh.rotation.y += .05;
-  // ball.mesh.rotation.x += .02;
-};
+  translatedCube.mesh.rotation.y += .02;
 
-const updateSceneThree = () => {
-  console.log(`scene three controls`);
-};
-
-const updateSceneFour = () => {
-  console.log(`scene four controls`);
+  ball.mesh.rotation.y += .05;
+  ball.mesh.rotation.x += .02;
 };
 
 const loop = () => {
@@ -354,12 +347,6 @@ const loop = () => {
   }
   if (selectedVisual === 2) {
     updateSceneTwo();
-  }
-  if (selectedVisual === 3) {
-    updateSceneThree();
-  }
-  if (selectedVisual === 4) {
-    updateSceneFour();
   }
 
   requestAnimationFrame(loop);
