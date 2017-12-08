@@ -17,7 +17,7 @@ export default class Ball {
 
     const parameters = {color: 0xffffff, map: texture};
 
-    const geometry = new THREE.SphereGeometry(4, 32, 32);
+    const geometry = new THREE.SphereGeometry(2, 32, 32);
     const material = new THREE.MeshLambertMaterial(parameters);
     this.hexagon = new THREE.Mesh(geometry, material);
     this.mesh.add(this.hexagon);
