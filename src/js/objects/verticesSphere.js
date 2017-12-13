@@ -1,4 +1,4 @@
-let video, texture;
+// let video, texture;
 
 const THREE = require(`three`);
 
@@ -26,25 +26,25 @@ export default class VerticesSphere {
         x: v.x,
         z: v.z,
         // a random angle
-        ang: Math.random() * Math.PI * 3,
+        ang: Math.random(0.0, 3.0) * Math.PI * 3,
         // a random distance
-        amp: 1 + Math.random() * 2,
+        amp: 1 + Math.random(0.0, 3.0) * 2,
       });
     }
-
-    video = document.getElementById(`video1`);
-
-    texture = new THREE.VideoTexture(video);
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.format = THREE.RGBFormat;
-    texture.aspectRatio = 20;
+    //
+    // video = document.getElementById(`video1`);
+    //
+    // texture = new THREE.VideoTexture(video);
+    // texture.minFilter = THREE.LinearFilter;
+    // texture.magFilter = THREE.LinearFilter;
+    // texture.format = THREE.RGBFormat;
+    // texture.aspectRatio = 20;
 
     const mat = new THREE.MeshBasicMaterial({
       color: `cyan`,
       transparent: true,
       opacity: .8,
-      map: texture
+      // map: texture
     });
 
     this.mesh = new THREE.Mesh(geom, mat);

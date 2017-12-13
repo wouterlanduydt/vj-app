@@ -28,11 +28,14 @@ let audio,
 const freqArray = [],
   freqArrayMapped = [];
 
-let cube, translatedCube, ball, triangle, verticesSphere;
+const
+  cube = [];
+
+let translatedCube, ball, triangle, verticesSphere, verticesSphereRotated;
 
 let selectedVisual;
 
-const color = {r: 0, g: 0, b: 0, max: 255};
+const color = {r: 0, g: 0, b: 255, max: 255};
 
 const ballRotation = {x: 0, y: 0, z: 0},
   verticesSphereRotation = {x: 0, y: 0, z: 0},
@@ -47,6 +50,9 @@ const cubeRotation = {x: 0, y: 0, z: 0};
 
 // const cubeMaxProps = {width: 800, height: 800, depth: 800},
 const cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
+
+let cubeWireframe = false;
+
 
 // Development Mode
 
@@ -63,7 +69,7 @@ const cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 // };
 
 // Midi Mode
-const cameraPos = {z: 5, min: 5, max: 20};
+const cameraPos = {z: 30, min: 5, max: 30};
 
 const init = () => {
   configureMidiControlls();
@@ -86,39 +92,39 @@ const init = () => {
 
 const configureAudio = () => {
   audio = new Audio();
-  audio.src = `../assets/audio/thewayudo.mp3`;
+  // audio.src = `../assets/audio/thewayudo.mp3`;
   audio.controls = true;
   audio.autoplay = false;
   audio.className = `mic`;
   document.getElementById(`audio`).appendChild(audio);
 
   // MIC CODE
-  // let sourceNode;
-  //
-  // const constraints = window.constraints = {
-  //   audio: true,
-  //   video: false
-  // };
-  //
-  // navigator.mediaDevices.getUserMedia(constraints).
-  //   then(handleSuccess).catch(handleError);
-  //
-  // function handleSuccess(stream) {
-  //   const audioTracks = stream.getAudioTracks();
-  //   console.log(`Got stream with constraints:`, constraints);
-  //   console.log(`Using audio device: ${  audioTracks[0].label}`);
-  //   stream.oninactive = function() {
-  //     console.log(`Stream ended`);
-  //   };
-  //   window.stream = stream; // make variable available to browser console
-  //   // mic.srcObject = stream;
-  //   sourceNode = context.createMediaStreamSource(stream);
-  //   sourceNode.connect(analyser);
-  // }
-  //
-  // function handleError(error) {
-  //   console.log(`navigator.getUserMedia error: `, error);
-  // }
+  let sourceNode;
+
+  const constraints = window.constraints = {
+    audio: true,
+    video: false
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints).
+    then(handleSuccess).catch(handleError);
+
+  function handleSuccess(stream) {
+    const audioTracks = stream.getAudioTracks();
+    console.log(`Got stream with constraints:`, constraints);
+    console.log(`Using audio device: ${  audioTracks[0].label}`);
+    stream.oninactive = function() {
+      console.log(`Stream ended`);
+    };
+    window.stream = stream; // make variable available to browser console
+    // mic.srcObject = stream;
+    sourceNode = context.createMediaStreamSource(stream);
+    sourceNode.connect(analyser);
+  }
+
+  function handleError(error) {
+    console.log(`navigator.getUserMedia error: `, error);
+  }
 
   context = new AudioContext();
   analyser = context.createAnalyser();
@@ -206,7 +212,7 @@ const configureMidiControlls = () => {
     const visualFromMessage = getVisualFromMessage(message, selectedVisual);
 
     if (visualFromMessage && selectedVisual !== visualFromMessage) {
-      removeAllObjects(scene);
+      removeAllObjects(scene, camera);
       selectedVisual = visualFromMessage;
       createFunctions[selectedVisual]();
     }
@@ -222,7 +228,12 @@ const visualControls = (selectedVisual, message) => {
 
     ctrlSldrOne = message.data[1] === 6,
     ctrlSldrTwo = message.data[1] === 7,
-    ctrlSldrThree = message.data[1] === 8;
+    ctrlSldrThree = message.data[1] === 8,
+
+    keyLckOne = message.data[1] === 10,
+    keyLckTwo = message.data[1] === 11,
+    keyLckThree = message.data[1] === 12,
+    keyLckFour = message.data[1] === 13;
 
   if (selectedVisual === 1) {
     // CUBE PROPS
@@ -230,10 +241,10 @@ const visualControls = (selectedVisual, message) => {
       color.r = mapRange(message.data[2], 0, 127, 0, color.max);
     }
     if (ctrlFilTwo) {
-      color.g = mapRange(message.data[2], 0, 127, 10, color.max);
+      color.g = mapRange(message.data[2], 0, 127, 0, color.max);
     }
     if (ctrlFilThree) {
-      color.b = mapRange(message.data[2], 0, 127, 10, color.max);
+      color.b = mapRange(message.data[2], 0, 127, 0, color.max);
     }
 
     // CUBE ROTATION
@@ -244,6 +255,35 @@ const visualControls = (selectedVisual, message) => {
       cubeRotation.y = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.y);
     }
     if (ctrlSldrThree) {
+      cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
+    }
+
+    if (keyLckOne && message.data[2] === 127) {
+      if (cubeWireframe === true) {
+        console.log(`wireframe On`);
+        for (let i = 1;i < 7;i ++) {
+          for (let j = 7;j < 14;j ++) {
+            cube[i * j].mesh.children[0].material.wireframe = false;
+          }
+        }
+        cubeWireframe = false;
+      } else if (cubeWireframe === false) {
+        console.log(`wireframe Off`);
+        for (let i = 1;i < 7;i ++) {
+          for (let j = 7;j < 14;j ++) {
+            cube[i * j].mesh.children[0].material.wireframe = true;
+          }
+        }
+        cubeWireframe = true;
+      }
+    }
+    if (keyLckTwo && message.data[2] === 127) {
+      cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
+    }
+    if (keyLckThree && message.data[2] === 127) {
+      cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
+    }
+    if (keyLckFour && message.data[2] === 127) {
       cubeRotation.z = mapRange(message.data[2], 0, 127, 0, cubeMaxRotation.z);
     }
   }
@@ -291,7 +331,7 @@ const createScene = () => {
   WIDTH = window.innerWidth;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x1a1a1a);
+  scene.background = new THREE.Color(0x000000);
   aspectRatio = WIDTH / HEIGHT;
   fieldOfView = 60;
   camera = new THREE.PerspectiveCamera(
@@ -326,6 +366,8 @@ const createLight = () => {
 const visualOneCreate = () => {
   console.log(`[CREATE VISUAL 1]`);
   createCube();
+  camera.position.x = 15;
+  camera.position.y = 5;
 
   createLight();
 };
@@ -348,12 +390,21 @@ const visualThreeCreate = () => {
 
 const createVerticesSphere = () => {
   verticesSphere = new VerticesSphere();
+  verticesSphereRotated = new VerticesSphere();
+  verticesSphereRotated.mesh.rotation.y = 90;
+  scene.add(verticesSphereRotated.mesh);
   scene.add(verticesSphere.mesh);
 };
 
 const createCube = () => {
-  cube = new Cube();
-  scene.add(cube.mesh);
+  for (let i = 1;i < 7;i ++) {
+    for (let j = 7;j < 14;j ++) {
+      cube[j * i] = new Cube();
+      cube[j * i].mesh.position.y = 1.5 * i;
+      cube[j * i].mesh.position.x = 1.5 * j;
+      scene.add(cube[j * i ].mesh);
+    }
+  }
 };
 
 const createTranslatedCube = () => {
@@ -374,16 +425,22 @@ const createBall = () => {
 };
 
 const updateSceneOne = () => {
-  cube.mesh.rotation.x += cubeRotation.x;
-  cube.mesh.rotation.y += cubeRotation.y;
-  cube.mesh.rotation.z += cubeRotation.z;
-
-  cube.mesh.scale.x = freqArrayMapped[1];
-  cube.mesh.scale.y = freqArrayMapped[1];
-  cube.mesh.scale.z = freqArrayMapped[1];
 
   const hex = rgbToHex(color.r, color.g, color.b);
-  cube.cube.material.color.setHex(hex);
+
+  for (let i = 1;i < 7;i ++) {
+    for (let j = 7;j < 14;j ++) {
+      cube[i * j].mesh.rotation.x += cubeRotation.x;
+      cube[i * j].mesh.rotation.y += cubeRotation.y;
+      cube[i * j].mesh.rotation.z += cubeRotation.z;
+
+      cube[i * j].mesh.scale.x = freqArrayMapped[1];
+      cube[i * j].mesh.scale.y = freqArrayMapped[1];
+      cube[i * j].mesh.scale.z = freqArrayMapped[1];
+
+      cube[i * j].cube.material.color.setHex(hex);
+    }
+  }
 };
 
 const updateSceneTwo = () => {
@@ -409,7 +466,8 @@ const updateSceneTwo = () => {
 };
 
 const updateSceneThree = () => {
-  verticesSphere.moveWaves();
+  verticesSphere.editVertices();
+  verticesSphereRotated.editVertices();
 
   verticesSphere.mesh.rotation.x += verticesSphereRotation.x;
   verticesSphere.mesh.rotation.y += verticesSphereRotation.y;
@@ -418,6 +476,14 @@ const updateSceneThree = () => {
   verticesSphere.mesh.scale.x = freqArrayMapped[1];
   verticesSphere.mesh.scale.y = freqArrayMapped[1];
   verticesSphere.mesh.scale.z = freqArrayMapped[1];
+
+  verticesSphereRotated.mesh.rotation.x += verticesSphereRotation.x;
+  verticesSphereRotated.mesh.rotation.y += verticesSphereRotation.y;
+  verticesSphereRotated.mesh.rotation.z += verticesSphereRotation.z;
+
+  verticesSphereRotated.mesh.scale.x = freqArrayMapped[1];
+  verticesSphereRotated.mesh.scale.y = freqArrayMapped[1];
+  verticesSphereRotated.mesh.scale.z = freqArrayMapped[1];
 
   const hex = rgbToHex(color.r, color.g, color.b);
   verticesSphere.mesh.material.color.setHex(hex);
