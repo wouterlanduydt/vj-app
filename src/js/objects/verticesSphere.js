@@ -47,6 +47,13 @@ export default class VerticesSphere {
       // map: texture
     });
 
+    this.alternativeMaterial = new THREE.MeshBasicMaterial({
+      color: `green`,
+      transparent: false,
+      opacity: .8,
+      // map: texture
+    });
+
     this.mesh = new THREE.Mesh(geom, mat);
     this.mesh.receiveShadow = true;
   }
@@ -64,6 +71,7 @@ export default class VerticesSphere {
       // update the position of the vertex
       v.x = vprops.x + Math.cos(vprops.ang) * vprops.amp;
       v.y = vprops.y + Math.sin(vprops.ang) * vprops.amp;
+      v.z = vprops.z + Math.sin(vprops.ang) * vprops.amp;
 
       // increment the angle for the next frame
       // vprops.ang += vprops.speed;

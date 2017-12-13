@@ -51,7 +51,8 @@ const cubeRotation = {x: 0, y: 0, z: 0};
 // const cubeMaxProps = {width: 800, height: 800, depth: 800},
 const cubeMaxRotation = {x: 0.3, y: 0.3, z: 0.3};
 
-let cubeWireframe = false;
+let cubeWireframe = false,
+  verticesWireframe = false;
 
 
 // Development Mode
@@ -92,7 +93,7 @@ const init = () => {
 
 const configureAudio = () => {
   audio = new Audio();
-  // audio.src = `../assets/audio/thewayudo.mp3`;
+  audio.src = `../assets/audio/thewayudo.mp3`;
   audio.controls = true;
   audio.autoplay = false;
   audio.className = `mic`;
@@ -132,12 +133,14 @@ const configureAudio = () => {
   source.connect(analyser);
   analyser.connect(context.destination);
 
+  fbcArray = new Uint8Array(analyser.frequencyBinCount);
+
   audioLooper();
 };
 
 const audioLooper = () => {
   requestAnimationFrame(audioLooper);
-  fbcArray = new Uint8Array(analyser.frequencyBinCount);
+
   analyser.getByteFrequencyData(fbcArray);
 
   const differentFreqs = 4;
@@ -259,20 +262,16 @@ const visualControls = (selectedVisual, message) => {
     }
 
     if (keyLckOne && message.data[2] === 127) {
-      if (cubeWireframe === true) {
+      if (cubeWireframe) {
         console.log(`wireframe On`);
-        for (let i = 1;i < 7;i ++) {
-          for (let j = 7;j < 14;j ++) {
-            cube[i * j].mesh.children[0].material.wireframe = false;
-          }
+        for (let i = 0;i < 100;i ++) {
+          cube[i].mesh.children[0].material.wireframe = false;
         }
         cubeWireframe = false;
-      } else if (cubeWireframe === false) {
+      } else {
         console.log(`wireframe Off`);
-        for (let i = 1;i < 7;i ++) {
-          for (let j = 7;j < 14;j ++) {
-            cube[i * j].mesh.children[0].material.wireframe = true;
-          }
+        for (let i = 0;i < 100;i ++) {
+          cube[i].mesh.children[0].material.wireframe = true;
         }
         cubeWireframe = true;
       }
@@ -322,6 +321,25 @@ const visualControls = (selectedVisual, message) => {
     if (ctrlSldrThree) {
       verticesSphereRotation.z = mapRange(message.data[2], 0, 127, 0, verticesSphereMaxRotation.z);
     }
+
+    if (keyLckOne && message.data[2] === 127) {
+      if (verticesWireframe) {
+        console.log(`wireframe On`);
+        verticesSphere.mesh.material.wireframe = false;
+        verticesSphereRotated.mesh.material.wireframe = false;
+        verticesWireframe = false;
+      } else {
+        console.log(`wireframe Off`);
+        console.log(verticesSphere);
+        verticesSphere.mesh.material.wireframe = true;
+        verticesSphereRotated.mesh.material.wireframe = true;
+        verticesWireframe = true;
+      }
+    }
+    if (keyLckTwo && message.data[2] === 127) {
+      console.log(`alternative material`);
+      // verticesSphere.mesh.material = verticesSphere.alternativeMaterial;
+    }
   }
 
 };
@@ -366,7 +384,14 @@ const createLight = () => {
 const visualOneCreate = () => {
   console.log(`[CREATE VISUAL 1]`);
   createCube();
-  camera.position.x = 15;
+
+  if (cubeWireframe) {
+    for (let i = 0;i < 100;i ++) {
+      cube[i].mesh.children[0].material.wireframe = true;
+    }
+  }
+
+  camera.position.x = 5;
   camera.position.y = 5;
 
   createLight();
@@ -382,8 +407,13 @@ const visualTwoCreate = () => {
 };
 
 const visualThreeCreate = () => {
-  console.log(`[CREATE VISUAL 2]`);
+  console.log(`[CREATE VISUAL 3]`);
   createVerticesSphere();
+
+  if (verticesWireframe) {
+    verticesSphere.mesh.material.wireframe = true;
+    verticesSphereRotated.mesh.material.wireframe = true;
+  }
 
   createLight();
 };
@@ -396,14 +426,16 @@ const createVerticesSphere = () => {
   scene.add(verticesSphere.mesh);
 };
 
+
+
 const createCube = () => {
-  for (let i = 1;i < 7;i ++) {
-    for (let j = 7;j < 14;j ++) {
-      cube[j * i] = new Cube();
-      cube[j * i].mesh.position.y = 1.5 * i;
-      cube[j * i].mesh.position.x = 1.5 * j;
-      scene.add(cube[j * i ].mesh);
-    }
+  for (let i = 0;i < 100;i ++) {
+    const x = i % 10;
+    const y = Math.floor(i / 10);
+    cube.push(new Cube());
+    cube[i].mesh.position.y = 1.5 * y;
+    cube[i].mesh.position.x = 1.5 * x;
+    scene.add(cube[i].mesh);
   }
 };
 
@@ -428,18 +460,16 @@ const updateSceneOne = () => {
 
   const hex = rgbToHex(color.r, color.g, color.b);
 
-  for (let i = 1;i < 7;i ++) {
-    for (let j = 7;j < 14;j ++) {
-      cube[i * j].mesh.rotation.x += cubeRotation.x;
-      cube[i * j].mesh.rotation.y += cubeRotation.y;
-      cube[i * j].mesh.rotation.z += cubeRotation.z;
+  for (let i = 0;i < 100;i ++) {
+    cube[i].mesh.rotation.x += cubeRotation.x;
+    cube[i].mesh.rotation.y += cubeRotation.y;
+    cube[i].mesh.rotation.z += cubeRotation.z;
 
-      cube[i * j].mesh.scale.x = freqArrayMapped[1];
-      cube[i * j].mesh.scale.y = freqArrayMapped[1];
-      cube[i * j].mesh.scale.z = freqArrayMapped[1];
+    cube[i].mesh.scale.x = freqArrayMapped[1];
+    cube[i].mesh.scale.y = freqArrayMapped[1];
+    cube[i].mesh.scale.z = freqArrayMapped[1];
 
-      cube[i * j].cube.material.color.setHex(hex);
-    }
+    cube[i].cube.material.color.setHex(hex);
   }
 };
 
@@ -486,7 +516,9 @@ const updateSceneThree = () => {
   verticesSphereRotated.mesh.scale.z = freqArrayMapped[1];
 
   const hex = rgbToHex(color.r, color.g, color.b);
+  const hexVerticesRotated = rgbToHex(color.r * 1.5, color.g * 1.8, color.b * 1.2);
   verticesSphere.mesh.material.color.setHex(hex);
+  verticesSphereRotated.mesh.material.color.setHex(hexVerticesRotated);
 };
 
 const loop = () => {
