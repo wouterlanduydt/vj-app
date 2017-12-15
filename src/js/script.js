@@ -32,16 +32,16 @@ const freqArray = [0, 0, 0, 0],
 let cubes = [];
 
 let translatedCube, ball, verticesSphere, verticesSphereRotated;
+let sceneOneMaterial = `default`,
+  // sceneTwoMaterial = `default`,
+  sceneThreeMaterial = `default`;
 
 let selectedVisual;
 
-const color = {r: 0, g: 0, b: 255, max: 255};
+const color = {r: 255, g: 0, b: 255, max: 255};
 
 const rotationValue = {x: 0, y: 0, z: 0},
   maxRotationValue = {x: 0.15, y: 0.15, z: 0.15};
-
-let cubeWireframe = false,
-  verticesWireframe = false;
 
 const cameraPos = {z: 30, min: 30, max: 5};
 
@@ -50,6 +50,13 @@ const init = () => {
   configureAudio();
   configureWebcam();
   createScene();
+
+  //development mode
+  // selectedVisual = 3;
+  // visualThreeCreate();
+  // updateVisualThree();
+  // cameraPos.z = 20;
+
   loop();
 };
 
@@ -226,25 +233,13 @@ const visualControls = (selectedVisual, message) => {
     }
 
     if (keyLckOne && message.data[2] === 127) {
-      if (cubeWireframe) {
-        console.log(`wireframe On`);
-        for (let i = 0;i < 100;i ++) {
-          cubes[i].mesh.children[0].material.wireframe = false;
-        }
-        cubeWireframe = false;
-      } else {
-        console.log(`wireframe Off`);
-        for (let i = 0;i < 100;i ++) {
-          cubes[i].mesh.children[0].material.wireframe = true;
-        }
-        cubeWireframe = true;
-      }
+      visualOneChangeMaterial(`default`);
     }
     if (keyLckTwo && message.data[2] === 127) {
-      console.log(`material 2`);
+      visualOneChangeMaterial(`standard`);
     }
     if (keyLckThree && message.data[2] === 127) {
-      console.log(`material 3`);
+      visualOneChangeMaterial(`wireframe`);
     }
     if (keyLckFour && message.data[2] === 127) {
       console.log(`material 4`);
@@ -280,21 +275,13 @@ const visualControls = (selectedVisual, message) => {
     }
 
     if (keyLckOne && message.data[2] === 127) {
-      if (verticesWireframe) {
-        console.log(`wireframe On`);
-        verticesSphere.mesh.material.wireframe = false;
-        verticesSphereRotated.mesh.material.wireframe = false;
-        verticesWireframe = false;
-      } else {
-        console.log(`wireframe Off`);
-        verticesSphere.mesh.material.wireframe = true;
-        verticesSphereRotated.mesh.material.wireframe = true;
-        verticesWireframe = true;
-      }
+      visualThreeChangeMaterial(`default`);
     }
     if (keyLckTwo && message.data[2] === 127) {
-      console.log(`alternative material`);
-      // verticesSphere.mesh.material = verticesSphere.alternativeMaterial;
+      visualThreeChangeMaterial(`phong`);
+    }
+    if (keyLckThree && message.data[2] === 127) {
+      visualThreeChangeMaterial(`wireframe`);
     }
   }
 
@@ -341,11 +328,7 @@ const visualOneCreate = () => {
   console.log(`[CREATE VISUAL 1]`);
   createCubes();
 
-  if (cubeWireframe) {
-    for (let i = 0;i < 100;i ++) {
-      cubes[i].mesh.children[0].material.wireframe = true;
-    }
-  }
+  visualOneChangeMaterial(sceneOneMaterial);
 
   createLight();
 };
@@ -364,6 +347,25 @@ const updateVisualOne = () => {
     cubes[i].mesh.scale.z = 1 + (freqArrayMapped[1] * beatSensitivity);
 
     cubes[i].cube.material.color.setHex(hex);
+  }
+};
+
+const visualOneChangeMaterial = sceneMaterial => {
+  if (sceneMaterial === `default`) {
+    sceneOneMaterial = `default`;
+    for (let i = 0;i < 100;i ++) {
+      cubes[i].mesh.children[0].material = cubes[i].defaultMaterial;
+    }
+  } else if (sceneMaterial === `standard`) {
+    sceneOneMaterial = `standard`;
+    for (let i = 0;i < 100;i ++) {
+      cubes[i].mesh.children[0].material = cubes[i].standardMaterial;
+    }
+  } else if (sceneMaterial === `wireframe`) {
+    sceneOneMaterial = `wireframe`;
+    for (let i = 0;i < 100;i ++) {
+      cubes[i].mesh.children[0].material = cubes[i].wireframeMaterial;
+    }
   }
 };
 
@@ -394,10 +396,7 @@ const visualThreeCreate = () => {
   console.log(`[CREATE VISUAL 3]`);
   createVerticesSphere();
 
-  if (verticesWireframe) {
-    verticesSphere.mesh.material.wireframe = true;
-    verticesSphereRotated.mesh.material.wireframe = true;
-  }
+  visualThreeChangeMaterial(sceneThreeMaterial);
 
   createLight();
 };
@@ -426,6 +425,22 @@ const updateVisualThree = () => {
   const hexVerticesRotated = rgbToHex(color.r * 1.5, color.g * 1.8, color.b * 1.2);
   verticesSphere.mesh.material.color.setHex(hex);
   verticesSphereRotated.mesh.material.color.setHex(hexVerticesRotated);
+};
+
+const visualThreeChangeMaterial = sceneMaterial => {
+  if (sceneMaterial === `default`) {
+    sceneThreeMaterial = `default`;
+    verticesSphere.mesh.material = verticesSphere.defaultMaterial;
+    verticesSphereRotated.mesh.material = verticesSphereRotated.defaultMaterial;
+  } else if (sceneMaterial === `phong`) {
+    sceneThreeMaterial = `phong`;
+    verticesSphere.mesh.material = verticesSphere.phongMaterial;
+    verticesSphereRotated.mesh.material = verticesSphereRotated.phongMaterial;
+  } else if (sceneMaterial === `wireframe`) {
+    sceneThreeMaterial = `wireframe`;
+    verticesSphere.mesh.material = verticesSphere.wireframeMaterial;
+    verticesSphereRotated.mesh.material = verticesSphereRotated.wireframeMaterial;
+  }
 };
 
 const loop = () => {
