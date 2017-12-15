@@ -61,8 +61,8 @@ const configureAudio = () => {
   audio = new Audio();
   audio.src = `../assets/audio/thewayudo.mp3`;
   audio.controls = true;
-  audio.autoplay = false;
-  audio.muted = true;
+  audio.autoplay = true;
+  // audio.muted = true;
   audio.className = `mic`;
   document.getElementById(`audio`).appendChild(audio);
 
@@ -149,6 +149,7 @@ const configureMidiControlls = () => {
 
   function success (midi) {
     const inputs = midi.inputs.values();
+    console.log(midi);
 
     for (let input = inputs.next();input && !input.done;input = inputs.next()) {
       input.value.onmidimessage = onMIDIMessage;
@@ -156,8 +157,8 @@ const configureMidiControlls = () => {
   }
 
   function failure () {
-    // TODO: show message on screen.
     console.error(`Midi connection failed.`);
+    displayMidiFailedMessage();
   }
 
   const onMIDIMessage = message => {
@@ -186,6 +187,10 @@ const configureMidiControlls = () => {
 
     visualControls(selectedVisual, message);
   };
+};
+
+const displayMidiFailedMessage = () => {
+  document.querySelector(`.nomidi`).style.display = `inline`;
 };
 
 const visualControls = (selectedVisual, message) => {

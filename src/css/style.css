@@ -1,8 +1,37 @@
 @import 'reset';
 @import 'vars';
 
+body {
+  font-family: Helvetica, Arial;
+  font-size: 62.5%;
+}
+
 .scene {
   background-color: black;
+}
+
+.nomidi {
+  display: none;
+  background-color: color(white a(.4));
+  border: .1rem solid white;
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 10;
+  padding: 1rem 1.6rem;
+  border-radius: .4rem;
+  color: white;
+
+  &-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: .4rem;
+  }
+
+  &-subtitle {
+    opacity: .8;
+    font-size: 1.4rem;
+  }
 }
 
 .oneshoteffects {
