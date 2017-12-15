@@ -9,6 +9,10 @@ import getVisualFromMessage from './lib/getVisualFromMessage';
 
 const THREE = require(`three`);
 
+const strobeOneshot = document.querySelector(`.oneshoteffects-strobe`);
+const fadeoutOneshot = document.querySelector(`.oneshoteffects-fadeout`);
+const discoOneshot = document.querySelector(`.oneshoteffects-disco`);
+
 let scene,
   camera,
   fieldOfView,
@@ -171,6 +175,7 @@ const configureMidiControlls = () => {
     };
 
     const visualFromMessage = getVisualFromMessage(message, selectedVisual);
+    createOneShotEffect(message);
 
     if (visualFromMessage && selectedVisual !== visualFromMessage) {
       removeAllObjects(scene, camera);
@@ -298,6 +303,27 @@ const visualControls = (selectedVisual, message) => {
     }
   }
 
+};
+
+const createOneShotEffect = message => {
+  const ctrlFxOne = message.data[1] === 14,
+    ctrlFxTwo = message.data[1] === 15,
+    ctrlFxThree = message.data[1] === 16;
+
+  if (ctrlFxOne && message.data[2] === 127) {
+    strobeOneshot.style.display = `inline`;
+  }
+  if (ctrlFxTwo && message.data[2] === 127) {
+    fadeoutOneshot.style.display = `inline`;
+  }
+  if (ctrlFxThree && message.data[2] === 127) {
+    discoOneshot.style.display = `inline`;
+  }
+  if ((ctrlFxOne || ctrlFxTwo || ctrlFxThree) && message.data[2] === 0) {
+    strobeOneshot.style.display = `none`;
+    fadeoutOneshot.style.display = `none`;
+    discoOneshot.style.display = `none`;
+  }
 };
 
 const createScene = () => {

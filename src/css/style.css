@@ -4,3 +4,72 @@
 .scene {
   background-color: black;
 }
+
+.oneshoteffects {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  &-strobe {
+    display: none;
+    background-color: white;
+    animation: strobe steps(1, end) infinite;
+    animation-duration: 100ms;
+  }
+
+  &-fadeout {
+    display: none;
+    background-color: black;
+    opacity: 0;
+    animation: fadeout 200ms;
+    animation-fill-mode: forwards;
+  }
+
+  &-disco {
+    display: none;
+    background-color: white;
+    animation: disco 500ms infinite;
+  }
+}
+
+@keyframes strobe {
+
+  50% {
+    background: black;
+  }
+
+}
+
+@keyframes fadeout {
+
+  100% {
+    opacity: 1;
+  }
+
+}
+
+@keyframes disco {
+
+  0% {
+    background: red;
+  }
+
+  25% {
+    background: yellow;
+  }
+
+  50% {
+    background: blue;
+  }
+
+  75% {
+    background: green;
+  }
+
+  100% {
+    background: red;
+  }
+
+}
