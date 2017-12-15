@@ -35,12 +35,13 @@
     "style-loader": "^0.17.0",
     "stylelint": "^7.8.0",
     "stylelint-config-devine": "^1.1.0",
-    "three": "^0.88.0",
     "url-loader": "^0.5.7",
     "webpack": "^2.2.0",
     "webpack-config-htmls": "^1.0.1",
     "webpack-config-utils": "^2.3.0",
     "webpack-dev-server": "^2.4.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "three": "^0.88.0"
+  }
 }
