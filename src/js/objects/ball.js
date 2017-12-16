@@ -1,26 +1,38 @@
 const THREE = require(`three`);
 
-let texture, video;
-
 export default class Ball {
 
   constructor() {
     this.mesh = new THREE.Object3D();
+    const geometry = new THREE.SphereGeometry(.5, 32, 32);
+    const material = new THREE.MeshPhongMaterial({color: 0x000000, shininess: 1});
+    this.ball = new THREE.Mesh(geometry, material);
 
-    video = document.getElementById(`video1`);
+    this.direction = [
+      Math.random(),
+      Math.random(),
+      Math.random()
+    ];
 
-    texture = new THREE.VideoTexture(video);
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.format = THREE.RGBFormat;
-    texture.aspectRatio = 20;
+    this.defaultMaterial = new THREE.MeshPhongMaterial({
+      color: 0x000000,
+      shininess: 1
+    });
 
-    const parameters = {color: 0xffffff, map: texture};
+    this.phongMaterial = new THREE.MeshStandardMaterial({
+      color: 0x000000,
+      metalness: .4,
+      roughness: .2
+    });
 
-    const geometry = new THREE.SphereGeometry(2, 32, 32);
-    const material = new THREE.MeshLambertMaterial(parameters);
-    this.hexagon = new THREE.Mesh(geometry, material);
-    this.mesh.add(this.hexagon);
+    this.wireframeMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: .8,
+      wireframe: true
+    });
+
+    this.mesh.add(this.ball);
   }
 
 }

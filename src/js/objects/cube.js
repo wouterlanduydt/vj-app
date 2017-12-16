@@ -22,8 +22,6 @@ export default class Cube {
       wireframe: true
     });
 
-
-
     this.standardMaterial = new THREE.MeshStandardMaterial({
       metalness: 1,
       roughness: .5

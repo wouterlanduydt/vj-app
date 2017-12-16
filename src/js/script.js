@@ -1,7 +1,6 @@
 import Cube from './objects/cube';
-import TranslatedCube from './objects/translatedCube';
-import Ball from './objects/ball';
 import VerticesSphere from './objects/verticesSphere';
+import Ball from './objects/ball';
 import mapRange from './lib/mapRange';
 import rgbToHex from './lib/rgbToHex';
 import removeAllObjects from './lib/removeAllObjects';
@@ -30,10 +29,11 @@ const freqArray = [0, 0, 0, 0],
   freqArrayMapped = [0, 0, 0, 0];
 
 let cubes = [];
+const balls = [];
 
-let translatedCube, ball, verticesSphere, verticesSphereRotated;
+let verticesSphere, verticesSphereRotated;
 let sceneOneMaterial = `default`,
-  // sceneTwoMaterial = `default`,
+  sceneTwoMaterial = `default`,
   sceneThreeMaterial = `default`;
 
 let selectedVisual;
@@ -52,10 +52,9 @@ const init = () => {
   createScene();
 
   //development mode
-  // selectedVisual = 3;
-  // visualThreeCreate();
-  // updateVisualThree();
-  // cameraPos.z = 20;
+  selectedVisual = 2;
+  visualTwoCreate();
+  updateVisualTwo();
 
   loop();
 };
@@ -247,8 +246,39 @@ const visualControls = (selectedVisual, message) => {
   }
 
   if (selectedVisual === 2) {
-    if (ctrlSldrThree) {
-      rotationValue.y = mapRange(message.data[2], 0, 127, 0, maxRotationValue.y);
+    // BALL PROPS
+    if (ctrlFilOne) {
+      color.r = mapRange(message.data[2], 0, 127, 0, color.max);
+    }
+    if (ctrlFilTwo) {
+      color.g = mapRange(message.data[2], 0, 127, 0, color.max);
+    }
+    if (ctrlFilThree) {
+      color.b = mapRange(message.data[2], 0, 127, 0, color.max);
+    }
+
+    // BALL ROTATIONs
+    // if (ctrlSldrOne) {
+    //   rotationValue.x = mapRange(message.data[2], 0, 127, 0, maxRotationValue.x);
+    // }
+    // if (ctrlSldrTwo) {
+    //   rotationValue.y = mapRange(message.data[2], 0, 127, 0, maxRotationValue.y);
+    // }
+    // if (ctrlSldrThree) {
+    //   rotationValue.z = mapRange(message.data[2], 0, 127, 0, maxRotationValue.z);
+    // }
+
+    if (keyLckOne && message.data[2] === 127) {
+      visualTwoChangeMaterial(`default`);
+    }
+    if (keyLckTwo && message.data[2] === 127) {
+      visualTwoChangeMaterial(`standard`);
+    }
+    if (keyLckThree && message.data[2] === 127) {
+      visualTwoChangeMaterial(`wireframe`);
+    }
+    if (keyLckFour && message.data[2] === 127) {
+      console.log(`material 4`);
     }
   }
 
@@ -327,9 +357,7 @@ const createLight = () => {
 const visualOneCreate = () => {
   console.log(`[CREATE VISUAL 1]`);
   createCubes();
-
   visualOneChangeMaterial(sceneOneMaterial);
-
   createLight();
 };
 
@@ -346,7 +374,7 @@ const updateVisualOne = () => {
     cubes[i].mesh.scale.y = 1 + (freqArrayMapped[1] * beatSensitivity);
     cubes[i].mesh.scale.z = 1 + (freqArrayMapped[1] * beatSensitivity);
 
-    cubes[i].cube.material.color.setHex(hex);
+    cubes[i].mesh.material.color.setHex(hex);
   }
 };
 
@@ -364,32 +392,86 @@ const visualOneChangeMaterial = sceneMaterial => {
   } else if (sceneMaterial === `wireframe`) {
     sceneOneMaterial = `wireframe`;
     for (let i = 0;i < 100;i ++) {
-      cubes[i].mesh.children[0].material = cubes[i].wireframeMaterial;
+      cubes[i].cube.children[0].material = cubes[i].wireframeMaterial;
     }
   }
 };
 
 const visualTwoCreate = () => {
   console.log(`[CREATE VISUAL 2]`);
-  createTranslatedCube();
   createBall();
-
+  visualTwoChangeMaterial(sceneTwoMaterial);
   createLight();
 };
 
 const updateVisualTwo = () => {
-  translatedCube.mesh.rotation.y += rotationValue.y;
 
-  ball.mesh.rotation.y += rotationValue.y;
-  ball.mesh.rotation.z += rotationValue.z;
+  const ballSpeed = .5;
 
-  ball.mesh.scale.x = 1;
-  ball.mesh.scale.y = 1;
-  ball.mesh.scale.z = 1;
+  const updateBallPosition = () => {
+    for (let i = 0;i < 3;i ++) {
+      balls[i].mesh.position.x += balls[i].direction[0] * ballSpeed;
+      balls[i].mesh.position.y += balls[i].direction[1] * ballSpeed;
+      balls[i].mesh.position.z += balls[i].direction[2] * ballSpeed;
+    }
+  };
 
-  translatedCube.mesh.scale.x = 1;
-  translatedCube.mesh.scale.y = 1;
-  translatedCube.mesh.scale.z = 1;
+  const updateBallCollision = () => {
+    for (let i = 0;i < 3;i ++) {
+      if (balls[i].mesh.position.x >= 15) {
+        balls[i].direction[0] *= - 1;
+      }
+      else if (balls[i].mesh.position.x <= - 15) {
+        balls[i].direction[0] *= - 1;
+      }
+
+      if (balls[i].mesh.position.y >= 10) {
+        balls[i].direction[1] *= - 1;
+      }
+      else if (balls[i].mesh.position.y <= - 10) {
+        balls[i].direction[1] *= - 1;
+      }
+
+      if (balls[i].mesh.position.z >= 12) {
+        balls[i].direction[2] *= - 1;
+      }
+      else if (balls[i].mesh.position.z <= - 12) {
+        balls[i].direction[2] *= - 1;
+      }
+    }
+  };
+
+  updateBallPosition();
+  updateBallCollision();
+
+  const hex = rgbToHex(color.r, color.g, color.b);
+
+  for (let i = 0;i < 3;i ++) {
+    balls[i].mesh.scale.x = 1 + (freqArrayMapped[1] * beatSensitivity);
+    balls[i].mesh.scale.y = 1 + (freqArrayMapped[1] * beatSensitivity);
+    balls[i].mesh.scale.z = 1 + (freqArrayMapped[1] * beatSensitivity);
+
+    balls[i].ball.material.color.setHex(hex);
+  }
+};
+
+const visualTwoChangeMaterial = sceneMaterial => {
+  if (sceneMaterial === `default`) {
+    sceneTwoMaterial = `default`;
+    for (let i = 0;i < 3;i ++) {
+      balls[i].mesh.children[0].material = balls[i].defaultMaterial;
+    }
+  } else if (sceneMaterial === `standard`) {
+    sceneTwoMaterial = `standard`;
+    for (let i = 0;i < 3;i ++) {
+      balls[i].mesh.children[0].material = balls[i].standardMaterial;
+    }
+  } else if (sceneMaterial === `wireframe`) {
+    sceneTwoMaterial = `wireframe`;
+    for (let i = 0;i < 3;i ++) {
+      balls[i].cube.children[0].material = balls[i].wireframeMaterial;
+    }
+  }
 };
 
 const visualThreeCreate = () => {
@@ -473,6 +555,13 @@ const createVerticesSphere = () => {
   scene.add(verticesSphere.mesh);
 };
 
+const createBall = () => {
+  for (let i = 0;i < 3;i ++) {
+    balls.push(new Ball());
+    scene.add(balls[i].mesh);
+  }
+};
+
 const createCubes = () => {
   for (let i = 0;i < 100;i ++) {
     const x = i % 10;
@@ -482,18 +571,6 @@ const createCubes = () => {
     cubes[i].mesh.position.y = 1.5 * mapRange(y, 0, 9, - 5, 5);
     scene.add(cubes[i].mesh);
   }
-};
-
-const createTranslatedCube = () => {
-  translatedCube = new TranslatedCube();
-  translatedCube.receiveShadow = true;
-  scene.add(translatedCube.mesh);
-};
-
-const createBall = () => {
-  ball = new Ball();
-  ball.receiveShadow = true;
-  scene.add(ball.mesh);
 };
 
 const handleWindowResize = () => {
