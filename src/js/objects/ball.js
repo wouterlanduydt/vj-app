@@ -4,7 +4,7 @@ export default class Ball {
 
   constructor() {
     this.mesh = new THREE.Object3D();
-    const geometry = new THREE.SphereGeometry(.5, 32, 32);
+    const geometry = new THREE.SphereGeometry(1, 32, 32);
     const material = new THREE.MeshPhongMaterial({color: 0x000000, shininess: 1});
     this.ball = new THREE.Mesh(geometry, material);
 
@@ -19,13 +19,13 @@ export default class Ball {
       shininess: 1
     });
 
-    this.phongMaterial = new THREE.MeshStandardMaterial({
+    this.standardMaterial = new THREE.MeshStandardMaterial({
       color: 0x000000,
       metalness: .4,
       roughness: .2
     });
 
-    this.wireframeMaterial = new THREE.MeshBasicMaterial({
+    this.wireframeMaterial = new THREE.MeshPhongMaterial({
       color: 0x000000,
       transparent: true,
       opacity: .8,

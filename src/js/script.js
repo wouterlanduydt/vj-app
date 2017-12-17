@@ -51,11 +51,6 @@ const init = () => {
   configureWebcam();
   createScene();
 
-  //development mode
-  selectedVisual = 2;
-  visualTwoCreate();
-  updateVisualTwo();
-
   loop();
 };
 
@@ -374,7 +369,7 @@ const updateVisualOne = () => {
     cubes[i].mesh.scale.y = 1 + (freqArrayMapped[1] * beatSensitivity);
     cubes[i].mesh.scale.z = 1 + (freqArrayMapped[1] * beatSensitivity);
 
-    cubes[i].mesh.material.color.setHex(hex);
+    cubes[i].mesh.children[0].material.color.setHex(hex);
   }
 };
 
@@ -392,7 +387,7 @@ const visualOneChangeMaterial = sceneMaterial => {
   } else if (sceneMaterial === `wireframe`) {
     sceneOneMaterial = `wireframe`;
     for (let i = 0;i < 100;i ++) {
-      cubes[i].cube.children[0].material = cubes[i].wireframeMaterial;
+      cubes[i].mesh.children[0].material = cubes[i].wireframeMaterial;
     }
   }
 };
@@ -408,41 +403,34 @@ const updateVisualTwo = () => {
 
   const ballSpeed = .5;
 
-  const updateBallPosition = () => {
-    for (let i = 0;i < 3;i ++) {
-      balls[i].mesh.position.x += balls[i].direction[0] * ballSpeed;
-      balls[i].mesh.position.y += balls[i].direction[1] * ballSpeed;
-      balls[i].mesh.position.z += balls[i].direction[2] * ballSpeed;
+  for (let i = 0;i < 3;i ++) {
+    balls[i].mesh.position.x += balls[i].direction[0] * ballSpeed;
+    balls[i].mesh.position.y += balls[i].direction[1] * ballSpeed;
+    balls[i].mesh.position.z += balls[i].direction[2] * ballSpeed;
+  }
+
+  for (let i = 0;i < 3;i ++) {
+    if (balls[i].mesh.position.x >= 15) {
+      balls[i].direction[0] *= - 1;
     }
-  };
-
-  const updateBallCollision = () => {
-    for (let i = 0;i < 3;i ++) {
-      if (balls[i].mesh.position.x >= 15) {
-        balls[i].direction[0] *= - 1;
-      }
-      else if (balls[i].mesh.position.x <= - 15) {
-        balls[i].direction[0] *= - 1;
-      }
-
-      if (balls[i].mesh.position.y >= 10) {
-        balls[i].direction[1] *= - 1;
-      }
-      else if (balls[i].mesh.position.y <= - 10) {
-        balls[i].direction[1] *= - 1;
-      }
-
-      if (balls[i].mesh.position.z >= 12) {
-        balls[i].direction[2] *= - 1;
-      }
-      else if (balls[i].mesh.position.z <= - 12) {
-        balls[i].direction[2] *= - 1;
-      }
+    else if (balls[i].mesh.position.x <= - 15) {
+      balls[i].direction[0] *= - 1;
     }
-  };
 
-  updateBallPosition();
-  updateBallCollision();
+    if (balls[i].mesh.position.y >= 10) {
+      balls[i].direction[1] *= - 1;
+    }
+    else if (balls[i].mesh.position.y <= - 10) {
+      balls[i].direction[1] *= - 1;
+    }
+
+    if (balls[i].mesh.position.z >= 12) {
+      balls[i].direction[2] *= - 1;
+    }
+    else if (balls[i].mesh.position.z <= - 12) {
+      balls[i].direction[2] *= - 1;
+    }
+  }
 
   const hex = rgbToHex(color.r, color.g, color.b);
 
@@ -469,7 +457,7 @@ const visualTwoChangeMaterial = sceneMaterial => {
   } else if (sceneMaterial === `wireframe`) {
     sceneTwoMaterial = `wireframe`;
     for (let i = 0;i < 3;i ++) {
-      balls[i].cube.children[0].material = balls[i].wireframeMaterial;
+      balls[i].mesh.children[0].material = balls[i].wireframeMaterial;
     }
   }
 };
