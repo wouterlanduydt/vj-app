@@ -25,15 +25,27 @@ export default class VerticesSphere {
     }
 
     const mat = new THREE.MeshBasicMaterial({
-      color: `cyan`,
+      color: 0x000000,
       transparent: true,
       opacity: .8,
     });
 
-    this.alternativeMaterial = new THREE.MeshBasicMaterial({
-      color: `green`,
-      transparent: false,
+    this.defaultMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: .8
+    });
+
+    this.phongMaterial = new THREE.MeshPhongMaterial({
+      color: 0x000000,
+      shininess: 1
+    });
+
+    this.wireframeMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
       opacity: .8,
+      wireframe: true
     });
 
     this.mesh = new THREE.Mesh(geom, mat);
