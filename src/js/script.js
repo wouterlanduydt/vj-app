@@ -1,4 +1,5 @@
 import Cube from './objects/cube';
+import Background from './objects/background';
 import VerticesSphere from './objects/verticesSphere';
 import Ball from './objects/ball';
 import mapRange from './lib/mapRange';
@@ -40,17 +41,22 @@ const cubeAmount = 100, ballAmount = 10;
 
 let ballSpeed = .1;
 
-let verticesSphere, verticesSphereRotated;
+let verticesSphere, verticesSphereRotated, background;
 let sceneOneMaterial = `default`,
   sceneTwoMaterial = `default`,
-  sceneThreeMaterial = `default`;
+  sceneThreeMaterial = `default`,
+  backgroundMaterial = `default`,
+  backgroundHex, backgroundLight;
 
 let selectedVisual;
 
-const color = {r: 255, g: 0, b: 255, max: 255};
+const color = {r: 255, g: 0, b: 255, max: 255},
+  backgroundColor = {r: 0, g: 0, b: 0, max: 255};
 
 const rotationValue = {x: 0, y: 0, z: 0},
-  maxRotationValue = {x: 0.15, y: 0.15, z: 0.15};
+  backgroundRotationValue = {y: 0},
+  maxRotationValue = {x: 0.15, y: 0.15, z: 0.15},
+  backgroundMaxRotationValue = {y: 0.15};
 
 const cameraPos = {z: 30, min: 30, max: 5};
 
@@ -65,39 +71,39 @@ const init = () => {
 
 const configureAudio = () => {
   audio = new Audio();
-  audio.src = `../assets/audio/thewayudo.mp3`;
-  audio.controls = true;
+  // audio.src = `../assets/audio/thewayudo.mp3`;
+  audio.controls = false;
   audio.autoplay = true;
   // audio.muted = true;
   audio.className = `mic`;
   document.getElementById(`audio`).appendChild(audio);
 
   // MIC CODE
-  // let sourceNode;
-  //
-  // const constraints = window.constraints = {
-  //   audio: true,
-  //   video: false
-  // };
-  //
-  // navigator.mediaDevices.getUserMedia(constraints).
-  //   then(handleSuccess).catch(handleError);
-  //
-  // function handleSuccess(stream) {
-  //   const audioTracks = stream.getAudioTracks();
-  //   console.log(`Got stream with constraints:`, constraints);
-  //   console.log(`Using audio device: ${audioTracks[0].label}`);
-  //   stream.oninactive = function() {
-  //     console.log(`Stream ended`);
-  //   };
-  //   window.stream = stream;
-  //   sourceNode = context.createMediaStreamSource(stream);
-  //   sourceNode.connect(analyser);
-  // }
-  //
-  // function handleError(error) {
-  //   console.log(`navigator.getUserMedia error: `, error);
-  // }
+  let sourceNode;
+
+  const constraints = window.constraints = {
+    audio: true,
+    video: false
+  };
+
+  navigator.mediaDevices.getUserMedia(constraints).
+    then(handleSuccess).catch(handleError);
+
+  function handleSuccess(stream) {
+    const audioTracks = stream.getAudioTracks();
+    console.log(`Got stream with constraints:`, constraints);
+    console.log(`Using audio device: ${audioTracks[0].label}`);
+    stream.oninactive = function() {
+      console.log(`Stream ended`);
+    };
+    window.stream = stream;
+    sourceNode = context.createMediaStreamSource(stream);
+    sourceNode.connect(analyser);
+  }
+
+  function handleError(error) {
+    console.log(`navigator.getUserMedia error: `, error);
+  }
 
   context = new AudioContext();
   analyser = context.createAnalyser();
@@ -213,8 +219,46 @@ const visualControls = (selectedVisual, message) => {
     keyLckOne = message.data[1] === 10,
     keyLckTwo = message.data[1] === 11,
     keyLckThree = message.data[1] === 12,
-    keyLckFour = message.data[1] === 13;
+    keyLckFour = message.data[1] === 13,
 
+    bgCtrlFilOne = message.data[1] === 43,
+    bgCtrlFilTwo = message.data[1] === 44,
+    bgCtrlFilThree = message.data[1] === 45,
+    bgCtrlFilFour = message.data[1] === 46,
+
+    bgKeyLckOne = message.data[1] === 51,
+    bgKeyLckTwo = message.data[1] === 52,
+    bgKeyLckThree = message.data[1] === 53,
+    bgKeyLckFour = message.data[1] === 54;
+
+  // BACKGROUND
+  if (bgCtrlFilOne) {
+    backgroundColor.r = mapRange(message.data[2], 0, 127, 0, backgroundColor.max);
+  }
+  if (bgCtrlFilTwo) {
+    backgroundColor.g = mapRange(message.data[2], 0, 127, 0, backgroundColor.max);
+  }
+  if (bgCtrlFilThree) {
+    backgroundColor.b = mapRange(message.data[2], 0, 127, 0, backgroundColor.max);
+  }
+  if (bgCtrlFilFour) {
+    backgroundRotationValue.y = mapRange(message.data[2], 0, 127, 0, backgroundMaxRotationValue.y);
+  }
+
+  if (bgKeyLckOne && message.data[2] === 127) {
+    backgroundChangeMaterial(`default`);
+  }
+  if (bgKeyLckTwo && message.data[2] === 127) {
+    backgroundChangeMaterial(`video`);
+  }
+  if (bgKeyLckThree && message.data[2] === 127) {
+    backgroundChangeMaterial(`wireframe`);
+  }
+  if (bgKeyLckFour && message.data[2] === 127) {
+    console.log(`material 4`);
+  }
+
+  // BEAT SENSITIVITY
   if (ctrlFilFour) {
     beatSensitivity = mapRange(message.data[2], 0, 127, 0, 1);
   }
@@ -354,7 +398,6 @@ const createScene = () => {
   WIDTH = window.innerWidth;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
   aspectRatio = WIDTH / HEIGHT;
   fieldOfView = 60;
   camera = new THREE.PerspectiveCamera(
@@ -374,16 +417,50 @@ const createScene = () => {
   container.appendChild(renderer.domElement);
 
   window.addEventListener(`resize`, handleWindowResize, false);
+
+  createBackground();
+  createLight();
 };
 
 const createLight = () => {
-  const light = new THREE.PointLight(0xffffff, 2, 100, 5);
-  light.position.set(3, 0, 15);
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  backgroundLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  light.position.set(0, 0, 20);
+  backgroundLight.position.set(5, 5, 20);
   light.castShadow = true;
+  backgroundLight.castShadow = true;
   scene.add(light);
+  scene.add(backgroundLight);
 
-  // const pointLightHelper = new THREE.PointLightHelper(light, 1, 0xff0000);
+  // const pointLightHelper = new THREE.DirectionalLightHelper(backgroundLight, 1, 0xff0000);
   // scene.add(pointLightHelper);
+};
+
+const createBackground = () => {
+  background = new Background();
+  backgroundChangeMaterial(backgroundMaterial);
+  scene.add(background.mesh);
+};
+
+const updateBackground = () => {
+  background.mesh.rotation.y += backgroundRotationValue.y;
+
+  backgroundHex = rgbToHex(backgroundColor.r, backgroundColor.g, backgroundColor.b);
+  background.background.material.color.setHex(backgroundHex);
+  backgroundLight.color.setHex(backgroundHex);
+};
+
+const backgroundChangeMaterial = sceneMaterial => {
+  if (sceneMaterial === `default`) {
+    backgroundMaterial = `default`;
+    background.background.material = background.defaultMaterial;
+  } else if (sceneMaterial === `video`) {
+    backgroundMaterial = `video`;
+    background.background.material = background.videoMaterial;
+  } else if (sceneMaterial === `wireframe`) {
+    backgroundMaterial = `wireframe`;
+    background.background.material = background.wireframeMaterial;
+  }
 };
 
 const visualOneCreate = () => {
@@ -391,6 +468,7 @@ const visualOneCreate = () => {
   createCubes();
   visualOneChangeMaterial(sceneOneMaterial);
   createLight();
+  createBackground();
 };
 
 const updateVisualOne = () => {
@@ -434,6 +512,7 @@ const visualTwoCreate = () => {
   createBall();
   visualTwoChangeMaterial(sceneTwoMaterial);
   createLight();
+  createBackground();
 };
 
 const updateVisualTwo = () => {
@@ -519,10 +598,9 @@ const visualTwoChangeMaterial = sceneMaterial => {
 const visualThreeCreate = () => {
   console.log(`[CREATE VISUAL 3]`);
   createVerticesSphere();
-
   visualThreeChangeMaterial(sceneThreeMaterial);
-
   createLight();
+  createBackground();
 };
 
 const updateVisualThree = () => {
@@ -571,6 +649,7 @@ const loop = () => {
   audioLooper();
   camera.position.z = cameraPos.z;
   renderer.render(scene, camera);
+  updateBackground();
 
   switch (selectedVisual) {
   case 1:

@@ -16,7 +16,7 @@ export default class Ball {
 
     this.defaultMaterial = new THREE.MeshPhongMaterial({
       color: 0x000000,
-      shininess: 1
+      shininess: 1,
     });
 
     this.standardMaterial = new THREE.MeshStandardMaterial({
@@ -27,8 +27,7 @@ export default class Ball {
 
     this.wireframeMaterial = new THREE.MeshPhongMaterial({
       color: 0x000000,
-      transparent: true,
-      opacity: .8,
+      shininess: 1,
       wireframe: true
     });
 

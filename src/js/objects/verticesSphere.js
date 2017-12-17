@@ -41,8 +41,9 @@ export default class VerticesSphere {
       shininess: 1
     });
 
-    this.wireframeMaterial = new THREE.MeshBasicMaterial({
+    this.wireframeMaterial = new THREE.MeshPhongMaterial({
       color: 0x000000,
+      shininess: 1,
       transparent: true,
       opacity: .8,
       wireframe: true

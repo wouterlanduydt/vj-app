@@ -82,23 +82,23 @@ body {
 @keyframes disco {
 
   0% {
-    background: red;
+    background: hotpink;
   }
 
   25% {
-    background: yellow;
+    background: cyan;
   }
 
   50% {
-    background: blue;
+    background: hotpink;
   }
 
   75% {
-    background: green;
+    background: cyan;
   }
 
   100% {
-    background: red;
+    background: hotpink;
   }
 
 }
