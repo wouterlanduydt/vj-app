@@ -9,9 +9,9 @@ export default class Ball {
     this.ball = new THREE.Mesh(geometry, material);
 
     this.direction = [
-      Math.random(),
-      Math.random(),
-      Math.random()
+      Math.random(.1, .5),
+      Math.random(.1, .5),
+      Math.random(.1, .5)
     ];
 
     this.defaultMaterial = new THREE.MeshPhongMaterial({
