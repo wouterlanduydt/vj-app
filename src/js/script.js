@@ -37,7 +37,6 @@ let cubes = [];
 let balls = [];
 
 const cubeAmount = 100, ballAmount = 10;
-// let ballAmount = 10, ballCurrentAmount, ballAmountPlus, ballAmountMin;
 
 let ballSpeed = .1;
 
@@ -65,17 +64,18 @@ const init = () => {
   configureAudio();
   configureWebcam();
   createScene();
-
   loop();
+};
+
+const removeWelcomeMessage = () => {
+  const welcomeMessage = document.querySelector(`.welcome`);
+  welcomeMessage.style.display = `none`;
 };
 
 const configureAudio = () => {
   audio = new Audio();
-  // audio.src = `../assets/audio/thewayudo.mp3`;
-  audio.controls = false;
-  audio.autoplay = true;
-  // audio.muted = true;
   audio.className = `mic`;
+  audio.muted = true;
   document.getElementById(`audio`).appendChild(audio);
 
   // MIC CODE
@@ -161,7 +161,6 @@ const configureMidiControlls = () => {
 
   function success (midi) {
     const inputs = midi.inputs.values();
-    console.log(midi);
 
     for (let input = inputs.next();input && !input.done;input = inputs.next()) {
       input.value.onmidimessage = onMIDIMessage;
@@ -219,7 +218,6 @@ const visualControls = (selectedVisual, message) => {
     keyLckOne = message.data[1] === 10,
     keyLckTwo = message.data[1] === 11,
     keyLckThree = message.data[1] === 12,
-    keyLckFour = message.data[1] === 13,
 
     bgCtrlFilOne = message.data[1] === 43,
     bgCtrlFilTwo = message.data[1] === 44,
@@ -228,8 +226,7 @@ const visualControls = (selectedVisual, message) => {
 
     bgKeyLckOne = message.data[1] === 51,
     bgKeyLckTwo = message.data[1] === 52,
-    bgKeyLckThree = message.data[1] === 53,
-    bgKeyLckFour = message.data[1] === 54;
+    bgKeyLckThree = message.data[1] === 53;
 
   // BACKGROUND
   if (bgCtrlFilOne) {
@@ -253,9 +250,6 @@ const visualControls = (selectedVisual, message) => {
   }
   if (bgKeyLckThree && message.data[2] === 127) {
     backgroundChangeMaterial(`wireframe`);
-  }
-  if (bgKeyLckFour && message.data[2] === 127) {
-    console.log(`material 4`);
   }
 
   // BEAT SENSITIVITY
@@ -295,9 +289,6 @@ const visualControls = (selectedVisual, message) => {
     if (keyLckThree && message.data[2] === 127) {
       visualOneChangeMaterial(`wireframe`);
     }
-    if (keyLckFour && message.data[2] === 127) {
-      console.log(`material 4`);
-    }
   }
 
   if (selectedVisual === 2) {
@@ -312,17 +303,6 @@ const visualControls = (selectedVisual, message) => {
       color.b = mapRange(message.data[2], 0, 127, 0, color.max);
     }
 
-    // BALL
-    // if (ctrlSldrOne) {
-    //   ballCurrentAmount = mapRange(message.data[2], 0, 127, 1, 100);
-    // }
-    // if (ctrlSldrTwo) {
-    //   rotationValue.y = mapRange(message.data[2], 0, 127, 0, maxRotationValue.y);
-    // }
-    // if (ctrlSldrThree) {
-    //   rotationValue.z = mapRange(message.data[2], 0, 127, 0, maxRotationValue.z);
-    // }
-
     if (keyLckOne && message.data[2] === 127) {
       visualTwoChangeMaterial(`default`);
     }
@@ -331,9 +311,6 @@ const visualControls = (selectedVisual, message) => {
     }
     if (keyLckThree && message.data[2] === 127) {
       visualTwoChangeMaterial(`wireframe`);
-    }
-    if (keyLckFour && message.data[2] === 127) {
-      console.log(`material 4`);
     }
   }
 
@@ -394,6 +371,7 @@ const createOneShotEffect = message => {
 };
 
 const createScene = () => {
+
   HEIGHT = window.innerHeight;
   WIDTH = window.innerWidth;
 
@@ -431,12 +409,14 @@ const createLight = () => {
   backgroundLight.castShadow = true;
   scene.add(light);
   scene.add(backgroundLight);
-
-  // const pointLightHelper = new THREE.DirectionalLightHelper(backgroundLight, 1, 0xff0000);
-  // scene.add(pointLightHelper);
 };
 
 const createBackground = () => {
+
+  if (selectedVisual) {
+    removeWelcomeMessage();
+  }
+
   background = new Background();
   backgroundChangeMaterial(backgroundMaterial);
   scene.add(background.mesh);
@@ -479,7 +459,6 @@ const updateVisualOne = () => {
     cubes[i].mesh.rotation.y += rotationValue.y;
     cubes[i].mesh.rotation.z += rotationValue.z;
 
-    // console.log(1 + (freqArrayMapped[1] * beatSensitivity));
     cubes[i].mesh.scale.x = 1 + (freqArrayMapped[1] * beatSensitivity);
     cubes[i].mesh.scale.y = 1 + (freqArrayMapped[1] * beatSensitivity);
     cubes[i].mesh.scale.z = 1 + (freqArrayMapped[1] * beatSensitivity);
@@ -516,23 +495,6 @@ const visualTwoCreate = () => {
 };
 
 const updateVisualTwo = () => {
-
-  // if (ballCurrentAmount >= ballAmount) {
-  //   console.log(ballAmount, balls.length);
-  //   ballAmountPlus = ballCurrentAmount - ballAmount;
-  //   for (let i = 0;i < ballAmountPlus;i ++) {
-  //     ballAmount = ballCurrentAmount;
-  //     balls.push(new Ball());
-  //     scene.add(balls[i].mesh);
-  //   }
-  // } else if (ballCurrentAmount <= ballAmount) {
-  //   console.log(ballAmount, balls.length);
-  //   ballAmountMin = ballAmount - ballCurrentAmount;
-  //   for (let i = 0;i < ballAmountMin;i ++) {
-  //     ballAmount = ballCurrentAmount;
-  //     balls.pop();
-  //   }
-  // }
 
   for (let i = 0;i < ballAmount;i ++) {
     balls[i].mesh.position.x += balls[i].direction[0] * ballSpeed;
