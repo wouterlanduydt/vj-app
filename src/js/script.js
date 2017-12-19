@@ -50,7 +50,7 @@ let sceneOneMaterial = `default`,
 
 let selectedVisual;
 
-const color = {r: 255, g: 0, b: 255, max: 255},
+const color = {r: 255, g: 255, b: 255, max: 255},
   backgroundColor = {r: 0, g: 0, b: 0, max: 255};
 
 const rotationValue = {x: 0, y: 0, z: 0},
@@ -688,8 +688,8 @@ const createCubes = () => {
     const x = i % 10;
     const y = Math.floor(i / 10);
     cubes.push(new Cube());
-    cubes[i].mesh.position.x = 1.5 * mapRange(x, 0, 9, - 5, 5);
-    cubes[i].mesh.position.y = 1.5 * mapRange(y, 0, 9, - 5, 5);
+    cubes[i].mesh.position.x = 2.5 * mapRange(x, 0, 9, - 5, 5);
+    cubes[i].mesh.position.y = 2.5 * mapRange(y, 0, 9, - 5, 5);
     scene.add(cubes[i].mesh);
   }
 };
