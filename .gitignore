@@ -1,3 +1,9 @@
 node_modules
 
+.firebaserc
+
+firebase.json
+
 /dist
+
+.DS_Store

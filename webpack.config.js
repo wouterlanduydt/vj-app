@@ -14,6 +14,7 @@ const {ifProduction, ifDevelopment} = getIfUtils(process.env.NODE_ENV);
 const extractCSS = new ExtractTextWebpackPlugin(`css/style.css`);
 
 // change for production build on different server path
+// const publicPath = `/ruuben.lambrechts/20172018/EXI/VjApp/`;
 const publicPath = `/`;
 
 const port = 3000;
@@ -168,7 +169,7 @@ const config = {
 
     ifDevelopment(new HotModuleReplacementPlugin()),
 
-    
+
 
     ifProduction(copy),
     ifProduction(extractCSS),
