@@ -56,6 +56,16 @@ body {
   }
 }
 
+.browser-reqs {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  color: white;
+  z-index: 10;
+  font-size: 1.2rem;
+  opacity: .2;
+}
+
 .oneshoteffects {
   width: 100vw;
   height: 100vh;
