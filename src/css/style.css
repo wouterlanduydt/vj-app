@@ -95,6 +95,23 @@ body {
   }
 }
 
+.btn {
+
+  &-box {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+  }
+
+  &-keyboard {
+    margin-left: 2rem;
+  }
+}
+
 @keyframes strobe {
 
   50% {

@@ -12,6 +12,9 @@ const THREE = require(`three`);
 const strobeOneshot = document.querySelector(`.oneshoteffects-strobe`);
 const fadeoutOneshot = document.querySelector(`.oneshoteffects-fadeout`);
 const discoOneshot = document.querySelector(`.oneshoteffects-disco`);
+const btnKeyboard = document.querySelector(`.btn-keyboard`);
+const btnMidi = document.querySelector(`.btn-midi`);
+const btns = document.querySelector(`.btn-box`);
 
 let scene,
   camera,
@@ -60,16 +63,56 @@ const rotationValue = {x: 0, y: 0, z: 0},
 const cameraPos = {z: 30, min: 30, max: 5};
 
 const init = () => {
-  configureMidiControlls();
+  btnKeyboard.onclick = configureKeyboard;
+  btnMidi.onclick = configureMidiControlls;
+};
+
+const removeWelcomeMessage = () => {
+  const welcomeMessage = document.querySelector(`.welcome`);
+  welcomeMessage.style.display = `none`;
+};
+
+const setup = () => {
+  btns.style = `display: none;`;
   configureAudio();
   configureWebcam();
   createScene();
   loop();
 };
 
-const removeWelcomeMessage = () => {
-  const welcomeMessage = document.querySelector(`.welcome`);
-  welcomeMessage.style.display = `none`;
+const configureKeyboard = () => {
+  removeWelcomeMessage();
+  setup();
+  window.onkeydown = keyboardEvents;
+};
+
+const keyboardEvents = e => {
+  console.log(e.key);
+
+  if (e.key === `1` || e.key === `2` || e.key === `3`) {
+    const requestedVisual = e.key;
+    if (requestedVisual !== selectedVisual) {
+      removeAllObjects(scene, camera);
+      cubes = [];
+      balls = [];
+    }
+    switch (e.key) {
+    case `1`:
+      selectedVisual = 1;
+      visualOneCreate();
+      break;
+
+    case `2`:
+      selectedVisual = 2;
+      visualTwoCreate();
+      break;
+
+    case `3`:
+      selectedVisual = 3;
+      visualThreeCreate();
+      break;
+    }
+  }
 };
 
 const configureAudio = () => {
@@ -154,6 +197,8 @@ const configureWebcam = () => {
 };
 
 const configureMidiControlls = () => {
+  setup();
+
   if (navigator.requestMIDIAccess) {
     navigator.requestMIDIAccess()
       .then(success, failure);
@@ -197,7 +242,7 @@ const configureMidiControlls = () => {
       createFunctions[selectedVisual]();
     }
 
-    visualControls(selectedVisual, message);
+    midiVisualControls(selectedVisual, message);
   };
 };
 
@@ -205,7 +250,7 @@ const displayMidiFailedMessage = () => {
   document.querySelector(`.nomidi`).style.display = `inline`;
 };
 
-const visualControls = (selectedVisual, message) => {
+const midiVisualControls = (selectedVisual, message) => {
   const ctrlFilOne = message.data[1] === 2,
     ctrlFilTwo = message.data[1] === 3,
     ctrlFilThree = message.data[1] === 4,
