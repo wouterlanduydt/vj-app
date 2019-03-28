@@ -9,10 +9,11 @@
 <body>
   <video id="video1" autoplay loop webkit-playsinline muted style="display:none">
   </video>
-  <div class="audio" id="audio" muted style=""></div>
+  <div class="audio" id="audio" muted></div>
   <div class="welcome">
     <p class="welcome-title">Press on one of the bottom keys to select a scene.</p>
     <p class="welcome-subtitle">Due to audio playback, we advise to mute your browser tab.</p>
+    <button id="keyboardControl">Keyboard Controls</button>
   </div>
   <div class="oneshoteffects oneshoteffects-strobe"></div>
   <div class="oneshoteffects oneshoteffects-fadeout"></div>
@@ -23,6 +24,36 @@
     <p class="nomidi-subtitle">Please try again or refresh the page.</p>
   </div>
   <p class="browser-reqs">Requires Google Chrome 43 or Opera 30</p>
+  <div class="inputs" id="inputs">
+    <div class="inputs-group">
+      <label for="beatSensitivity">beat sensitivity</label>
+      <input type="range" name="beatSensitivity" id="beatSensitivity" min="0" max="1" step="0.1" value="0.3">
+    </div>
+    <div class="inputs-group">
+      <label for="rotationValueX">rotation value x</label>
+      <input type="range" name="rotationValueX" id="rotationValueX" min="0" max="0.15" step="0.01" value="0">
+    </div>
+    <div class="inputs-group">
+      <label for="rotationValueY">rotation value y</label>
+      <input type="range" name="rotationValueY" id="rotationValueY" min="0" max="0.15" step="0.01" value="0">
+    </div>
+    <div class="inputs-group">
+      <label for="rotationValueZ">rotation value z</label>
+      <input type="range" name="rotationValueZ" id="rotationValueZ" min="0" max="0.15" step="0.01" value="0">
+    </div>
+    <div class="inputs-group">
+      <label for="redControl">red</label>
+      <input type="range" name="redControl" id="redControl" min="0" max="255" step="1" value="255">
+    </div>
+    <div class="inputs-group">
+      <label for="greenControl">green</label>
+      <input type="range" name="greenControl" id="greenControl" min="0" max="255" step="1" value="255">
+    </div>
+    <div class="inputs-group">
+      <label for="blueControl">blue</label>
+      <input type="range" name="blueControl" id="blueControl" min="0" max="255" step="1" value="255">
+    </div>
+  </div>
 </body>
 
 </html>

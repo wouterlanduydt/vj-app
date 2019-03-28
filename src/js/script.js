@@ -65,11 +65,52 @@ const init = () => {
   configureWebcam();
   createScene();
   loop();
+  document.getElementById(`keyboardControl`).addEventListener(`click`, () => configureKeyboardControls());
 };
 
 const removeWelcomeMessage = () => {
   const welcomeMessage = document.querySelector(`.welcome`);
   welcomeMessage.style.display = `none`;
+};
+
+const configureKeyboardControls = () => {
+  document.getElementById(`inputs`).style.cssText = `display: block;`;
+  removeAllObjects(scene, camera);
+  cubes = [];
+  balls = [];
+  selectedVisual = 1;
+  visualOneCreate();
+  beatSensitivity = 0.3;
+
+  const beatSensitivityControl = document.getElementById(`beatSensitivity`);
+  beatSensitivityControl.addEventListener(`change`, function () {
+    beatSensitivity = parseFloat(this.value);
+  });
+
+  const rotationValueX = document.getElementById(`rotationValueX`);
+  rotationValueX.addEventListener(`change`, function () {
+    rotationValue.x = parseFloat(this.value);
+  });
+  const rotationValueY = document.getElementById(`rotationValueY`);
+  rotationValueY.addEventListener(`change`, function () {
+    rotationValue.y = parseFloat(this.value);
+  });
+  const rotationValueZ = document.getElementById(`rotationValueZ`);
+  rotationValueZ.addEventListener(`change`, function () {
+    rotationValue.z = parseFloat(this.value);
+  });
+  const redControl = document.getElementById(`redControl`);
+  redControl.addEventListener(`change`, function () {
+    color.r = parseFloat(this.value);
+  });
+  const greenControl = document.getElementById(`greenControl`);
+  greenControl.addEventListener(`change`, function () {
+    color.g = parseFloat(this.value);
+  });
+  const blueControl = document.getElementById(`blueControl`);
+  blueControl.addEventListener(`change`, function () {
+    color.b = parseFloat(this.value);
+  });
 };
 
 const configureAudio = () => {
