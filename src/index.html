@@ -1,28 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>VJ App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>VJ App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
 
-<body>
-  <video id="video1" autoplay loop webkit-playsinline muted style="display:none">
-  </video>
-  <div class="audio" id="audio" muted style=""></div>
-  <div class="welcome">
-    <p class="welcome-title">Press on one of the bottom keys to select a scene.</p>
-    <p class="welcome-subtitle">Due to audio playback, we advise to mute your browser tab.</p>
-  </div>
-  <div class="oneshoteffects oneshoteffects-strobe"></div>
-  <div class="oneshoteffects oneshoteffects-fadeout"></div>
-  <div class="oneshoteffects oneshoteffects-disco"></div>
-  <div class="scene" id="scene"></div>
-  <div class="nomidi">
-    <p class="nomidi-title">No Traktor Kontrol F1 found.</p>
-    <p class="nomidi-subtitle">Please try again or refresh the page.</p>
-  </div>
-  <p class="browser-reqs">Requires Google Chrome 43 or Opera 30</p>
-</body>
-
+  <body>
+    <video
+      id="video1"
+      autoplay
+      loop
+      webkit-playsinline
+      muted
+      style="display:none"
+    >
+    </video>
+    <div class="audio" id="audio" muted></div>
+    <div class="welcome">
+      <p class="welcome-title"
+        >Press on one of the bottom keys to select a scene.</p
+      >
+      <p class="welcome-subtitle"
+        >Due to audio playback, we advise to mute your browser tab.</p
+      >
+      <button id="keyboardControl">Keyboard Controls</button>
+    </div>
+    <div class="oneshoteffects oneshoteffects-strobe"></div>
+    <div class="oneshoteffects oneshoteffects-fadeout"></div>
+    <div class="oneshoteffects oneshoteffects-disco"></div>
+    <div class="scene" id="scene"></div>
+    <div class="nomidi">
+      <p class="nomidi-title">No Traktor Kontrol F1 found.</p>
+      <p class="nomidi-subtitle">Please try again or refresh the page.</p>
+    </div>
+    <p class="browser-reqs">Requires Google Chrome 43 or Opera 30</p>
+    <div class="inputs" id="inputs">
+      <p
+        class="inputs-group-title"
+        id="inputsGroupTitle"
+        style="margin-bottom: 10px; text-decoration: underline;"
+        >Controls</p
+      >
+      <div class="input-controls" id="inputControls">
+        <div class="inputs-group">
+          <label for="beatSensitivity">beat sensitivity</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="beatSensitivity"
+            id="beatSensitivity"
+            min="0"
+            max="1"
+            step="0.1"
+            value="0.2"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="camera">camera</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="camera"
+            id="camera"
+            min="5"
+            max="30"
+            step="1"
+            value="30"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="rotationValueX">rotation value x</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="rotationValueX"
+            id="rotationValueX"
+            min="0"
+            max="0.15"
+            step="0.01"
+            value="0"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="rotationValueY">rotation value y</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="rotationValueY"
+            id="rotationValueY"
+            min="0"
+            max="0.15"
+            step="0.01"
+            value="0"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="rotationValueZ">rotation value z</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="rotationValueZ"
+            id="rotationValueZ"
+            min="0"
+            max="0.15"
+            step="0.01"
+            value="0"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="redControl">red</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="redControl"
+            id="redControl"
+            min="0"
+            max="255"
+            step="1"
+            value="255"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="greenControl">green</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="greenControl"
+            id="greenControl"
+            min="0"
+            max="255"
+            step="1"
+            value="255"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="blueControl">blue</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="blueControl"
+            id="blueControl"
+            min="0"
+            max="255"
+            step="1"
+            value="255"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="redBackgroundControl">red background</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="redBackgroundControl"
+            id="redBackgroundControl"
+            min="0"
+            max="255"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="greenBackgroundControl">green background</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="greenBackgroundControl"
+            id="greenBackgroundControl"
+            min="0"
+            max="255"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="inputs-group">
+          <label for="blueBackgroundControl">blue background</label>
+          <input
+            autocomplete="off"
+            type="range"
+            name="blueBackgroundControl"
+            id="blueBackgroundControl"
+            min="0"
+            max="255"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="inputs-group">
+          <p class="inputs-group-title">Change Scene</p>
+          <div>
+            <button id="sceneOneButton">
+              scene 1
+            </button>
+            <button id="sceneTwoButton">
+              scene 2
+            </button>
+            <button id="sceneThreeButton">
+              scene 3
+            </button>
+            <button id="sceneFourButton">
+              scene 4
+            </button>
+          </div>
+        </div>
+        <div class="inputs-group">
+          <p class="inputs-group-title">Change Visual Material</p>
+          <div class="inputs-group">
+            <button id="materialDefaultButton">
+              visuals default material
+            </button>
+            <button id="materialStandardButton">
+              visuals glossy material
+            </button>
+            <button id="materialWireframeButton">
+              visuals wireframe material
+            </button>
+          </div>
+        </div>
+        <div class="inputs-group">
+          <p class="inputs-group-title">Change Background</p>
+          <div class="inputs-group">
+            <label for="backgroundRotationController"
+              >background rotation</label
+            >
+            <input
+              autocomplete="off"
+              type="range"
+              name="backgroundRotationController"
+              id="backgroundRotationController"
+              min="0"
+              max="0.08"
+              step="0.005"
+              value="0"
+            />
+            <button id="backgroundMaterialDefaultButton">
+              background default material
+            </button>
+            <button id="backgroundMaterialWireframeButton">
+              background wireframe material
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
