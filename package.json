@@ -42,6 +42,7 @@
     "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
+    "open-simplex-noise": "^1.6.0",
     "three": "^0.88.0"
   }
 }
