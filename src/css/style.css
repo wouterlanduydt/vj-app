@@ -10,11 +10,21 @@ body {
   display: none;
   position: absolute;
   top: 0;
+  background: rgba(0, 0, 0, .2);
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid rgba(255, 255, 255, .2);
 
   &-group {
     display: flex;
     flex-direction: column;
     margin: 5px;
+
+    &-title {
+      margin-bottom: 5px;
+      color: white;
+      font-size: 1.6rem;
+    }
 
     & label {
       color: white;
