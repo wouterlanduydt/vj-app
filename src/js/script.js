@@ -6,16 +6,12 @@ import mapRange from './lib/mapRange';
 import getVisualFromMessage from './lib/getVisualFromMessage';
 import rgbToHex from './lib/rgbToHex';
 import removeAllObjects from './lib/removeAllObjects';
-import OpenSimplexNoise from 'open-simplex-noise';
 
 const THREE = require(`three`);
 
 const strobeOneshot = document.querySelector(`.oneshoteffects-strobe`);
 const fadeoutOneshot = document.querySelector(`.oneshoteffects-fadeout`);
 const discoOneshot = document.querySelector(`.oneshoteffects-disco`);
-const btnKeyboard = document.querySelector(`.btn-keyboard`);
-const btnMidi = document.querySelector(`.btn-midi`);
-const btns = document.querySelector(`.btn-box`);
 
 let scene,
   camera,
@@ -32,9 +28,7 @@ let audio,
   analyser,
   fbcArray;
 
-let beatSensitivity = .2;
-
-const noise = new OpenSimplexNoise();
+let beatSensitivity = .5;
 
 const freqArray = [0, 0, 0, 0],
   freqArrayMapped = [0, 0, 0, 0];
@@ -43,8 +37,6 @@ let cubes = [];
 let balls = [];
 
 const cubeAmount = 100, ballAmount = 10;
-
-let ball2;
 
 let ballSpeed = .1;
 
@@ -68,204 +60,16 @@ const rotationValue = {x: 0, y: 0, z: 0},
 const cameraPos = {z: 30, min: 30, max: 5};
 
 const init = () => {
-  btnKeyboard.onclick = configureKeyboard;
-  btnMidi.onclick = configureMidiControlls;
+  configureMidiControlls();
+  configureAudio();
+  configureWebcam();
+  createScene();
+  loop();
 };
 
 const removeWelcomeMessage = () => {
   const welcomeMessage = document.querySelector(`.welcome`);
   welcomeMessage.style.display = `none`;
-};
-
-const setup = () => {
-  btns.style = `display: none;`;
-  configureAudio();
-  configureWebcam();
-  createScene();
-  loop();
-  document.getElementById(`keyboardControl`).addEventListener(`click`, () => configureKeyboardControls());
-};
-
-const configureKeyboard = () => {
-  removeWelcomeMessage();
-  setup();
-  window.onkeydown = keyboardEvents;
-};
-
-const keyboardEvents = e => {
-  console.log(e.key);
-
-  if (e.key === `1` || e.key === `2` || e.key === `3`) {
-    const requestedVisual = e.key;
-    if (requestedVisual !== selectedVisual) {
-      removeAllObjects(scene, camera);
-      cubes = [];
-      balls = [];
-    }
-    switch (e.key) {
-    case `1`:
-      selectedVisual = 1;
-      visualOneCreate();
-      break;
-
-    case `2`:
-      selectedVisual = 2;
-      visualTwoCreate();
-      break;
-
-    case `3`:
-      selectedVisual = 3;
-      visualThreeCreate();
-      break;
-    }
-  }
-};
-
-const configureKeyboardControls = () => {
-  document.getElementById(`inputs`).style.cssText = `display: block;`;
-  removeAllObjects(scene, camera);
-  selectedVisual = 1;
-  visualOneCreate();
-
-  let inputControls = false;
-
-  const inputsGroupTitle = document.getElementById(`inputsGroupTitle`);
-  inputsGroupTitle.addEventListener(`click`, function () {
-    if (inputControls) {
-      document.getElementById(`inputControls`).style.cssText = `display: none;`;
-      inputControls = false;
-    } else {
-      document.getElementById(`inputControls`).style.cssText = `display: block;`;
-      inputControls = true;
-    }
-  });
-
-  const beatSensitivityControl = document.getElementById(`beatSensitivity`);
-  beatSensitivityControl.addEventListener(`change`, function () {
-    beatSensitivity = parseFloat(this.value);
-  });
-  const cameraControl = document.getElementById(`camera`);
-  cameraControl.addEventListener(`change`, function () {
-    cameraPos.z = parseFloat(this.value);
-  });
-  const rotationValueX = document.getElementById(`rotationValueX`);
-  rotationValueX.addEventListener(`change`, function () {
-    rotationValue.x = parseFloat(this.value);
-  });
-  const rotationValueY = document.getElementById(`rotationValueY`);
-  rotationValueY.addEventListener(`change`, function () {
-    rotationValue.y = parseFloat(this.value);
-  });
-  const rotationValueZ = document.getElementById(`rotationValueZ`);
-  rotationValueZ.addEventListener(`change`, function () {
-    rotationValue.z = parseFloat(this.value);
-  });
-  const redControl = document.getElementById(`redControl`);
-  redControl.addEventListener(`change`, function () {
-    color.r = parseFloat(this.value);
-  });
-  const greenControl = document.getElementById(`greenControl`);
-  greenControl.addEventListener(`change`, function () {
-    color.g = parseFloat(this.value);
-  });
-  const blueControl = document.getElementById(`blueControl`);
-  blueControl.addEventListener(`change`, function () {
-    color.b = parseFloat(this.value);
-  });
-  const redBackgroundControl = document.getElementById(`redBackgroundControl`);
-  redBackgroundControl.addEventListener(`change`, function () {
-    backgroundColor.r = parseFloat(this.value);
-  });
-  const greenBackgroundControl = document.getElementById(`greenBackgroundControl`);
-  greenBackgroundControl.addEventListener(`change`, function () {
-    backgroundColor.g = parseFloat(this.value);
-  });
-  const blueBackgroundControl = document.getElementById(`blueBackgroundControl`);
-  blueBackgroundControl.addEventListener(`change`, function () {
-    backgroundColor.b = parseFloat(this.value);
-  });
-  const sceneOneButton = document.getElementById(`sceneOneButton`);
-  sceneOneButton.addEventListener(`click`, function () {
-    if (selectedVisual !== 1) {
-      removeAllObjects(scene, camera);
-      cubes = [];
-      balls = [];
-      selectedVisual = 1;
-      visualOneCreate();
-    }
-  });
-  const sceneTwoButton = document.getElementById(`sceneTwoButton`);
-  sceneTwoButton.addEventListener(`click`, function () {
-    if (selectedVisual !== 2) {
-      removeAllObjects(scene, camera);
-      cubes = [];
-      balls = [];
-      selectedVisual = 2;
-      visualTwoCreate();
-    }
-  });
-  const sceneThreeButton = document.getElementById(`sceneThreeButton`);
-  sceneThreeButton.addEventListener(`click`, function () {
-    if (selectedVisual !== 3) {
-      removeAllObjects(scene, camera);
-      cubes = [];
-      balls = [];
-      selectedVisual = 3;
-      visualThreeCreate();
-    }
-  });
-  const sceneFourButton = document.getElementById(`sceneFourButton`);
-  sceneFourButton.addEventListener(`click`, function () {
-    if (selectedVisual !== 4) {
-      removeAllObjects(scene, camera);
-      cubes = [];
-      balls = [];
-      selectedVisual = 4;
-      visualFourCreate();
-    }
-  });
-  const materialDefaultButton = document.getElementById(`materialDefaultButton`);
-  materialDefaultButton.addEventListener(`click`, function () {
-    if (selectedVisual === 1) {
-      visualOneChangeMaterial(`default`);
-    } else if (selectedVisual === 2) {
-      visualTwoChangeMaterial(`default`);
-    } else if (selectedVisual === 3) {
-      visualThreeChangeMaterial(`default`);
-    }
-  });
-  const materialStandardButton = document.getElementById(`materialStandardButton`);
-  materialStandardButton.addEventListener(`click`, function () {
-    if (selectedVisual === 1) {
-      visualOneChangeMaterial(`standard`);
-    } else if (selectedVisual === 2) {
-      visualTwoChangeMaterial(`standard`);
-    } else if (selectedVisual === 3) {
-      visualThreeChangeMaterial(`phong`);
-    }
-  });
-  const materialWireframeButton = document.getElementById(`materialWireframeButton`);
-  materialWireframeButton.addEventListener(`click`, function () {
-    if (selectedVisual === 1) {
-      visualOneChangeMaterial(`wireframe`);
-    } else if (selectedVisual === 2) {
-      visualTwoChangeMaterial(`wireframe`);
-    } else if (selectedVisual === 3) {
-      visualThreeChangeMaterial(`wireframe`);
-    }
-  });
-  const backgroundRotationController = document.getElementById(`backgroundRotationController`);
-  backgroundRotationController.addEventListener(`change`, function () {
-    backgroundRotationValue.y = parseFloat(this.value);
-  });
-  const backgroundMaterialDefaultButton = document.getElementById(`backgroundMaterialDefaultButton`);
-  backgroundMaterialDefaultButton.addEventListener(`click`, function () {
-    backgroundChangeMaterial(`default`);
-  });
-  const backgroundMaterialWireframeButton = document.getElementById(`backgroundMaterialWireframeButton`);
-  backgroundMaterialWireframeButton.addEventListener(`click`, function () {
-    backgroundChangeMaterial(`wireframe`);
-  });
 };
 
 const configureAudio = () => {
@@ -317,7 +121,7 @@ const audioLooper = () => {
   for (let i = 0;i < differentFreqs;i ++) {
     if (fbcArray[i] > 0) {
       freqArray[i] = fbcArray[i];
-      freqArrayMapped[i] = mapRange(freqArray[i], 0, 255, - .5, 2);
+      freqArrayMapped[i] = mapRange(freqArray[i], 0, 255, 0, 2);
     } else {
       freqArray[i] = 1;
     }
@@ -350,8 +154,6 @@ const configureWebcam = () => {
 };
 
 const configureMidiControlls = () => {
-  setup();
-
   if (navigator.requestMIDIAccess) {
     navigator.requestMIDIAccess()
       .then(success, failure);
@@ -395,7 +197,7 @@ const configureMidiControlls = () => {
       createFunctions[selectedVisual]();
     }
 
-    midiVisualControls(selectedVisual, message);
+    visualControls(selectedVisual, message);
   };
 };
 
@@ -403,7 +205,7 @@ const displayMidiFailedMessage = () => {
   document.querySelector(`.nomidi`).style.display = `inline`;
 };
 
-const midiVisualControls = (selectedVisual, message) => {
+const visualControls = (selectedVisual, message) => {
   const ctrlFilOne = message.data[1] === 2,
     ctrlFilTwo = message.data[1] === 3,
     ctrlFilThree = message.data[1] === 4,
@@ -593,6 +395,7 @@ const createScene = () => {
   container.appendChild(renderer.domElement);
 
   window.addEventListener(`resize`, handleWindowResize, false);
+
   createBackground();
   createLight();
 };
@@ -804,44 +607,6 @@ const visualThreeChangeMaterial = sceneMaterial => {
   }
 };
 
-const visualFourCreate = () => {
-  console.log(`[CREATE VISUAL 4]`);
-  const icosahedronGeometry2 = new THREE.IcosahedronGeometry(12, 3);
-  const lambertMaterial2 = new THREE.MeshPhongMaterial({
-    color: 0x00ffff,
-  });
-  ball2 = new THREE.Mesh(icosahedronGeometry2, lambertMaterial2);
-  console.log(ball2);
-  ball2.position.z = 0;
-  scene.add(ball2);
-
-  createLight();
-  createBackground();
-  updateVisualFour(ball2);
-};
-
-const updateVisualFour = mesh => {
-  mesh.geometry.vertices.forEach(function(vertex) {
-    const offset = mesh.geometry.parameters.radius;
-    const time = Date.now();
-    vertex.normalize();
-    const distance = offset + noise.noise3D(
-        vertex.x + time * 0.0008,
-        vertex.y + time * 0.0005,
-        vertex.z + time * 0.0007
-    ) * (freqArrayMapped[1] * beatSensitivity * 5);
-    vertex.multiplyScalar(distance);
-  });
-
-  const hex = rgbToHex(color.r, color.g, color.b);
-  mesh.material.color.setHex(hex);
-
-  mesh.geometry.verticesNeedUpdate = true;
-  mesh.geometry.normalsNeedUpdate = true;
-  mesh.geometry.computeVertexNormals();
-  mesh.geometry.computeFaceNormals();
-};
-
 const loop = () => {
   audioLooper();
   camera.position.z = cameraPos.z;
@@ -858,9 +623,6 @@ const loop = () => {
   case 3:
     updateVisualThree();
     break;
-  case 4:
-    updateVisualFour(ball2);
-    break;
   default:
     break;
   }
@@ -872,8 +634,6 @@ const createVerticesSphere = () => {
   verticesSphere = new VerticesSphere();
   verticesSphereRotated = new VerticesSphere();
   verticesSphereRotated.mesh.rotation.y = 90;
-  verticesSphereRotated.mesh.position.z = 10;
-  verticesSphere.mesh.position.z = 10;
   scene.add(verticesSphereRotated.mesh);
   scene.add(verticesSphere.mesh);
 };
@@ -890,8 +650,8 @@ const createCubes = () => {
     const x = i % 10;
     const y = Math.floor(i / 10);
     cubes.push(new Cube());
-    cubes[i].mesh.position.x = 2.5 * mapRange(x, 0, 9, - 9, 9);
-    cubes[i].mesh.position.y = 2.5 * mapRange(y, 0, 9, - 9, 9);
+    cubes[i].mesh.position.x = 2.5 * mapRange(x, 0, 9, - 5, 5);
+    cubes[i].mesh.position.y = 2.5 * mapRange(y, 0, 9, - 5, 5);
     scene.add(cubes[i].mesh);
   }
 };
